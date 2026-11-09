@@ -177,13 +177,15 @@ namespace revit_mcp_plugin.Core
                 _listener = new TcpListener(IPAddress.Loopback, port);
                 _listener.Start();
 
+                // Set the running flag BEFORE starting the listener thread; otherwise the
+                // thread can observe _isRunning == false and exit immediately.
+                _isRunning = true;
+
                 _listenerThread = new Thread(ListenForClients)
                 {
                     IsBackground = true
                 };
                 _listenerThread.Start();
-
-                _isRunning = true;
                 McpLogger.Info("SocketService", $"Server started on port {port}");
             }
             catch (Exception ex)
