@@ -18,7 +18,6 @@ namespace RevitMCPCommandSet.Services
 
             foreach (FailureMessageAccessor failure in failures)
             {
-                // Handle room-related warnings by deleting them
                 string description = failure.GetDescriptionText();
                 if (description.Contains("Number") ||
                     description.Contains("number") ||
@@ -34,7 +33,12 @@ namespace RevitMCPCommandSet.Services
     }
 
     /// <summary>
-    /// Event handler for creating room tags in Revit
+    /// Creates room tags. Targets, in order of precedence:
+    ///  - allLevels: the main floor plan of every level that has placed rooms (active view is not changed)
+    ///  - roomIds: the active plan if it is on those rooms' level, otherwise that level's main floor plan
+    ///  - default: the active floor/ceiling plan; if the active view is not a plan, the main floor plan
+    ///    of the lowest level with rooms (and that view is activated)
+    /// Rooms that already have a tag in the target view are skipped, so re-running is safe.
     /// </summary>
     public class TagRoomsEventHandler : IExternalEventHandler, IWaitableExternalEventHandler
     {
@@ -42,28 +46,21 @@ namespace RevitMCPCommandSet.Services
         private UIDocument _uiDoc => _uiApp.ActiveUIDocument;
         private Document _doc => _uiDoc.Document;
 
-        /// <summary>
-        /// Event wait object for synchronization
-        /// </summary>
         private readonly ManualResetEvent _resetEvent = new ManualResetEvent(false);
 
-        /// <summary>
-        /// Tagging result data
-        /// </summary>
         public object TaggingResults { get; private set; }
 
         private bool _useLeader;
         private string _tagTypeId;
-        private List<int> _roomIds;
+        private List<long> _roomIds;
+        private bool _allLevels;
 
-        /// <summary>
-        /// Set the tagging parameters
-        /// </summary>
-        public void SetParameters(bool useLeader, string tagTypeId, List<int> roomIds = null)
+        public void SetParameters(bool useLeader, string tagTypeId, List<long> roomIds = null, bool allLevels = false)
         {
             _useLeader = useLeader;
             _tagTypeId = tagTypeId;
             _roomIds = roomIds;
+            _allLevels = allLevels;
             _resetEvent.Reset();
         }
 
@@ -74,132 +71,75 @@ namespace RevitMCPCommandSet.Services
 
             try
             {
-                View activeView = _doc.ActiveView;
+                var placedRooms = new FilteredElementCollector(_doc)
+                    .OfCategory(BuiltInCategory.OST_Rooms)
+                    .WhereElementIsNotElementType()
+                    .Cast<Room>()
+                    .Where(r => r.Area > 0)
+                    .ToList();
 
-                // First, determine the target level from the rooms we need to tag
-                Level targetLevel = null;
+                List<Room> requested = null;
                 if (_roomIds != null && _roomIds.Count > 0)
                 {
-                    // Get level from specified rooms
-                    var firstRoom = _doc.GetElement(new ElementId(_roomIds[0])) as Room;
-                    if (firstRoom != null)
+                    requested = _roomIds
+                        .Select(id => _doc.GetElement(RevitMCPCommandSet.Utils.ElementIdExtensions.FromLong(id)) as Room)
+                        .Where(r => r != null)
+                        .ToList();
+                    if (requested.Count == 0)
+                        throw new InvalidOperationException("None of the given roomIds are rooms");
+                }
+
+                // Resolve target views
+                var targets = new List<ViewPlan>();
+                View activeView = _doc.ActiveView;
+                var activePlan = activeView as ViewPlan;
+                bool activeIsPlan = activePlan != null && !activePlan.IsTemplate && activePlan.GenLevel != null &&
+                                    (activePlan.ViewType == ViewType.FloorPlan || activePlan.ViewType == ViewType.CeilingPlan);
+
+                if (_allLevels)
+                {
+                    var levelIds = (requested ?? placedRooms).Select(r => r.LevelId).Distinct();
+                    foreach (var levelId in levelIds)
                     {
-                        targetLevel = _doc.GetElement(firstRoom.LevelId) as Level;
+                        var plan = (activeIsPlan && activePlan.GenLevel.Id == levelId) ? activePlan : FindMainFloorPlan(levelId);
+                        if (plan != null) targets.Add(plan);
                     }
+                    targets = targets.OrderBy(v => v.GenLevel.Elevation).ToList();
                 }
                 else
                 {
-                    // Get level from any room in the project
-                    var anyRoom = new FilteredElementCollector(_doc)
-                        .OfCategory(BuiltInCategory.OST_Rooms)
-                        .WhereElementIsNotElementType()
-                        .Cast<Room>()
-                        .FirstOrDefault(r => r.Area > 0);
-
-                    if (anyRoom != null)
+                    ElementId wantedLevel = requested?.First().LevelId;
+                    if (activeIsPlan && (wantedLevel == null || activePlan.GenLevel.Id == wantedLevel))
                     {
-                        targetLevel = _doc.GetElement(anyRoom.LevelId) as Level;
-                    }
-                }
-
-                // Check if current view supports room tags AND is on the correct level
-                bool isCorrectViewType = activeView.ViewType == ViewType.FloorPlan ||
-                                         activeView.ViewType == ViewType.CeilingPlan;
-
-                bool isCorrectLevel = false;
-                if (isCorrectViewType && activeView is ViewPlan viewPlan && targetLevel != null)
-                {
-                    isCorrectLevel = viewPlan.GenLevel != null && viewPlan.GenLevel.Id == targetLevel.Id;
-                }
-
-                bool needsViewSwitch = !isCorrectViewType || !isCorrectLevel;
-
-                if (needsViewSwitch)
-                {
-                    if (targetLevel != null)
-                    {
-                        // Find a floor plan view for this level
-                        var floorPlanView = new FilteredElementCollector(_doc)
-                            .OfClass(typeof(ViewPlan))
-                            .Cast<ViewPlan>()
-                            .FirstOrDefault(v => v.ViewType == ViewType.FloorPlan &&
-                                                 !v.IsTemplate &&
-                                                 v.GenLevel != null &&
-                                                 v.GenLevel.Id == targetLevel.Id);
-
-                        if (floorPlanView != null)
-                        {
-                            string previousViewName = activeView.Name;
-                            _uiDoc.ActiveView = floorPlanView;
-                            activeView = floorPlanView;
-                            viewSwitchMessage = $"Switched from '{previousViewName}' to '{floorPlanView.Name}' for room tagging";
-                        }
-                        else
-                        {
-                            // No suitable floor plan found
-                            TaggingResults = new
-                            {
-                                success = false,
-                                message = $"Cannot tag rooms: Current view '{activeView.Name}' ({activeView.ViewType}) does not support room tags, and no floor plan view was found for level '{targetLevel.Name}'."
-                            };
-                            return;
-                        }
+                        targets.Add(activePlan);
                     }
                     else
                     {
-                        TaggingResults = new
+                        if (wantedLevel == null)
                         {
-                            success = false,
-                            message = $"Cannot tag rooms: Current view '{activeView.Name}' ({activeView.ViewType}) does not support room tags, and no rooms were found to determine the appropriate level."
-                        };
-                        return;
+                            var lowest = placedRooms.OrderBy(r => r.Level?.Elevation ?? double.MaxValue).FirstOrDefault();
+                            if (lowest == null) throw new InvalidOperationException("The model has no placed rooms");
+                            wantedLevel = lowest.LevelId;
+                        }
+                        var plan = FindMainFloorPlan(wantedLevel);
+                        if (plan == null)
+                            throw new InvalidOperationException($"Active view '{activeView.Name}' is not a plan and no floor plan exists for level {_doc.GetElement(wantedLevel)?.Name}");
+                        _uiDoc.ActiveView = plan;
+                        viewSwitchMessage = $"Switched from '{activeView.Name}' to '{plan.Name}' for room tagging";
+                        targets.Add(plan);
                     }
                 }
 
-                // Get rooms to tag
-                ICollection<Element> rooms;
+                if (targets.Count == 0)
+                    throw new InvalidOperationException("No floor plan views found to tag rooms in");
 
-                if (_roomIds != null && _roomIds.Count > 0)
-                {
-                    // Get specific rooms by ID
-                    rooms = _roomIds
-                        .Select(id => _doc.GetElement(new ElementId(id)))
-                        .Where(e => e != null && e is Room)
-                        .ToList();
-                }
-                else
-                {
-                    // Get all rooms in the current view
-                    FilteredElementCollector roomCollector = new FilteredElementCollector(_doc, activeView.Id);
-                    rooms = roomCollector.OfCategory(BuiltInCategory.OST_Rooms)
-                                         .WhereElementIsNotElementType()
-                                         .ToElements();
-                }
-
-                // Create room tags
-                List<object> createdTags = new List<object>();
-                List<string> errors = new List<string>();
-                List<object> skippedRooms = new List<object>();
-
-                // Get existing room tags in the view to avoid duplicates
-                HashSet<long> roomsWithExistingTags = new HashSet<long>();
-                FilteredElementCollector existingTagCollector = new FilteredElementCollector(_doc, activeView.Id);
-                var existingRoomTags = existingTagCollector.OfCategory(BuiltInCategory.OST_RoomTags)
-                                                          .WhereElementIsNotElementType()
-                                                          .Cast<RoomTag>()
-                                                          .ToList();
-
-                foreach (RoomTag existingTag in existingRoomTags)
-                {
-                    if (existingTag.Room != null)
-                    {
-                        roomsWithExistingTags.Add(existingTag.Room.Id.GetValue());
-                    }
-                }
+                var perView = new List<object>();
+                var createdTags = new List<object>();
+                var errors = new List<string>();
+                int totalCreated = 0, totalSkipped = 0, totalRooms = 0;
 
                 using (Transaction tran = new Transaction(_doc, "Tag Rooms"))
                 {
-                    // Set up failure handling to completely suppress any room-related warnings
                     FailureHandlingOptions failureOptions = tran.GetFailureHandlingOptions();
                     failureOptions.SetFailuresPreprocessor(new TagRoomFailurePreprocessor());
                     failureOptions.SetClearAfterRollback(true);
@@ -207,148 +147,95 @@ namespace RevitMCPCommandSet.Services
                     tran.SetFailureHandlingOptions(failureOptions);
 
                     tran.Start();
-                    try
-                    {
-                    // Find the room tag type
+
                     FamilySymbol roomTagType = FindRoomTagType(_doc);
-
                     if (roomTagType == null)
-                    {
-                        TaggingResults = new
-                        {
-                            success = false,
-                            message = "No room tag family type found in the project"
-                        };
-                        tran.RollBack();
-                        return;
-                    }
-
-                    // Ensure tag type is active
+                        throw new InvalidOperationException("No room tag family type found in the project");
                     if (!roomTagType.IsActive)
                     {
                         roomTagType.Activate();
                         _doc.Regenerate();
                     }
 
-                    // Create tags for each room
-                    foreach (Element element in rooms)
+                    foreach (var view in targets)
                     {
-                        Room room = element as Room;
-                        if (room == null) continue;
+                        // Rooms to tag in this view
+                        List<Room> rooms;
+                        if (requested != null)
+                            rooms = requested.Where(r => r.LevelId == view.GenLevel.Id).ToList();
+                        else
+                            rooms = new FilteredElementCollector(_doc, view.Id)
+                                .OfCategory(BuiltInCategory.OST_Rooms)
+                                .WhereElementIsNotElementType()
+                                .Cast<Room>()
+                                .ToList();
 
-                        // Skip unplaced or not enclosed rooms
-                        if (room.Area <= 0)
+                        var alreadyTagged = new HashSet<long>(new FilteredElementCollector(_doc, view.Id)
+                            .OfCategory(BuiltInCategory.OST_RoomTags)
+                            .WhereElementIsNotElementType()
+                            .Cast<RoomTag>()
+                            .Where(t => t.Room != null)
+                            .Select(t => t.Room.Id.GetValue()));
+
+                        int created = 0, skipped = 0;
+                        foreach (var room in rooms.OrderBy(r => r.Number, StringComparer.OrdinalIgnoreCase))
                         {
-                            skippedRooms.Add(new
+                            if (room.Area <= 0 || alreadyTagged.Contains(room.Id.GetValue())) { skipped++; continue; }
+                            try
                             {
-                                roomId = room.Id.GetValue().ToString(),
-                                roomName = room.get_Parameter(BuiltInParameter.ROOM_NAME)?.AsString() ?? "Room",
-                                roomNumber = room.Number,
-                                reason = "Room has Area=0 (not enclosed by walls or not placed)"
-                            });
-                            continue;
-                        }
-
-                        // Skip rooms that already have tags
-                        if (roomsWithExistingTags.Contains(room.Id.GetValue()))
-                        {
-                            skippedRooms.Add(new
-                            {
-                                roomId = room.Id.GetValue().ToString(),
-                                roomName = room.get_Parameter(BuiltInParameter.ROOM_NAME)?.AsString() ?? "Room",
-                                roomNumber = room.Number,
-                                reason = "Room already has a tag in this view"
-                            });
-                            continue;
-                        }
-
-                        try
-                        {
-                            // Get the room's location point
-                            LocationPoint locPoint = room.Location as LocationPoint;
-                            XYZ roomCenter;
-
-                            if (locPoint != null)
-                            {
-                                roomCenter = locPoint.Point;
-                            }
-                            else
-                            {
-                                // Fallback: get center from bounding box
-                                BoundingBoxXYZ bbox = room.get_BoundingBox(activeView);
-                                if (bbox == null) continue;
-                                roomCenter = (bbox.Min + bbox.Max) / 2;
-                            }
-
-                            // Create UV point for room tag
-                            UV tagPoint = new UV(roomCenter.X, roomCenter.Y);
-
-                            // Create the room tag
-                            RoomTag tag = _doc.Create.NewRoomTag(
-                                new LinkElementId(room.Id),
-                                tagPoint,
-                                activeView.Id);
-
-                            if (tag != null)
-                            {
-                                // Set leader if requested
-                                if (_useLeader)
+                                XYZ point = (room.Location as LocationPoint)?.Point;
+                                if (point == null)
                                 {
-                                    tag.HasLeader = true;
+                                    var bbox = room.get_BoundingBox(view);
+                                    if (bbox == null) { skipped++; continue; }
+                                    point = (bbox.Min + bbox.Max) / 2;
                                 }
 
+                                RoomTag tag = _doc.Create.NewRoomTag(new LinkElementId(room.Id), new UV(point.X, point.Y), view.Id);
+                                if (tag == null) { skipped++; continue; }
+                                if (tag.GetTypeId() != roomTagType.Id) tag.ChangeTypeId(roomTagType.Id);
+                                if (_useLeader) tag.HasLeader = true;
+                                created++;
                                 createdTags.Add(new
                                 {
                                     tagId = tag.Id.GetValue().ToString(),
                                     roomId = room.Id.GetValue().ToString(),
-                                    roomName = room.get_Parameter(BuiltInParameter.ROOM_NAME)?.AsString() ?? "Room",
                                     roomNumber = room.Number,
-                                    location = new
-                                    {
-                                        x = roomCenter.X * 304.8, // Convert to mm
-                                        y = roomCenter.Y * 304.8,
-                                        z = roomCenter.Z * 304.8
-                                    }
+                                    roomName = room.get_Parameter(BuiltInParameter.ROOM_NAME)?.AsString() ?? "Room",
+                                    view = view.Name
                                 });
                             }
+                            catch (Exception ex)
+                            {
+                                errors.Add($"Room {room.Number} in '{view.Name}': {ex.Message}");
+                            }
                         }
-                        catch (Exception ex)
-                        {
-                            errors.Add($"Error tagging room {room.Id.GetValue()}: {ex.Message}");
-                        }
+
+                        totalCreated += created;
+                        totalSkipped += skipped;
+                        totalRooms += rooms.Count;
+                        perView.Add(new { viewId = view.Id.GetValue().ToString(), viewName = view.Name, level = view.GenLevel.Name, created, skippedAlreadyTagged = skipped });
                     }
 
                     tran.Commit();
-
-                    string resultMessage = skippedRooms.Count > 0
-                        ? $"Created {createdTags.Count} tags. Skipped {skippedRooms.Count} rooms that already had tags."
-                        : $"Successfully created {createdTags.Count} room tags.";
-
-                    if (viewSwitchMessage != null)
-                    {
-                        resultMessage = viewSwitchMessage + "\n" + resultMessage;
-                    }
-
-                    TaggingResults = new
-                    {
-                        success = true,
-                        totalRooms = rooms.Count,
-                        taggedRooms = createdTags.Count,
-                        skippedCount = skippedRooms.Count,
-                        tags = createdTags,
-                        skippedRooms = skippedRooms.Count > 0 ? skippedRooms : null,
-                        errors = errors.Count > 0 ? errors : null,
-                        viewSwitched = viewSwitchMessage != null,
-                        message = resultMessage
-                    };
-                    }
-                    catch
-                    {
-                        if (tran.GetStatus() == TransactionStatus.Started)
-                            tran.RollBack();
-                        throw;
-                    }
                 }
+
+                string message = $"Created {totalCreated} room tags in {targets.Count} view(s)" +
+                                 (totalSkipped > 0 ? $"; skipped {totalSkipped} rooms that were already tagged or unplaced" : "");
+                if (viewSwitchMessage != null) message = viewSwitchMessage + "\n" + message;
+
+                TaggingResults = new
+                {
+                    success = true,
+                    totalRooms,
+                    taggedRooms = totalCreated,
+                    skippedCount = totalSkipped,
+                    views = perView,
+                    tags = createdTags.Count <= 40 ? createdTags : null,
+                    errors = errors.Count > 0 ? errors : null,
+                    viewSwitched = viewSwitchMessage != null,
+                    message
+                };
             }
             catch (Exception ex)
             {
@@ -360,40 +247,44 @@ namespace RevitMCPCommandSet.Services
             }
             finally
             {
-                _resetEvent.Set(); // Signal that the operation is complete
+                _resetEvent.Set();
             }
         }
 
         /// <summary>
-        /// Wait for the operation to complete
+        /// The "main" floor plan of a level: a non-template floor plan on that level, preferring the one
+        /// named exactly like the level, then one placed on a sheet, then the shortest name.
         /// </summary>
-        /// <param name="timeoutMilliseconds">Timeout in milliseconds</param>
-        /// <returns>True if completed before timeout</returns>
+        private ViewPlan FindMainFloorPlan(ElementId levelId)
+        {
+            var level = _doc.GetElement(levelId) as Level;
+            return new FilteredElementCollector(_doc)
+                .OfClass(typeof(ViewPlan))
+                .Cast<ViewPlan>()
+                .Where(v => v.ViewType == ViewType.FloorPlan && !v.IsTemplate && v.GenLevel != null && v.GenLevel.Id == levelId)
+                .OrderBy(v => level != null && v.Name == level.Name ? 0 : 1)
+                .ThenBy(v => string.IsNullOrEmpty(v.get_Parameter(BuiltInParameter.VIEWPORT_SHEET_NUMBER)?.AsString()) ? 1 : 0)
+                .ThenBy(v => v.Name.Length)
+                .ThenBy(v => v.Id.GetValue())
+                .FirstOrDefault();
+        }
+
         public bool WaitForCompletion(int timeoutMilliseconds = 10000)
         {
             return _resetEvent.WaitOne(timeoutMilliseconds);
         }
 
-        /// <summary>
-        /// IExternalEventHandler.GetName implementation
-        /// </summary>
         public string GetName()
         {
             return "Tag Rooms";
         }
 
-        /// <summary>
-        /// Find the room tag type in the document
-        /// </summary>
         private FamilySymbol FindRoomTagType(Document doc)
         {
-            // If specific tag type ID was specified, try to use it
             if (!string.IsNullOrEmpty(_tagTypeId) && long.TryParse(_tagTypeId, out long id))
             {
-                ElementId elementId = RevitMCPCommandSet.Utils.ElementIdExtensions.FromLong(id);
-                Element element = doc.GetElement(elementId);
-
-                if (element != null && element is FamilySymbol symbol &&
+                Element element = doc.GetElement(RevitMCPCommandSet.Utils.ElementIdExtensions.FromLong(id));
+                if (element is FamilySymbol symbol &&
                     symbol.Category != null &&
                     symbol.Category.Id.GetIntValue() == (int)BuiltInCategory.OST_RoomTags)
                 {
@@ -401,16 +292,26 @@ namespace RevitMCPCommandSet.Services
                 }
             }
 
-            // Find the first available room tag type
-            FilteredElementCollector tagCollector = new FilteredElementCollector(doc);
-            FamilySymbol roomTagType = tagCollector.OfClass(typeof(FamilySymbol))
-                                                  .WhereElementIsElementType()
-                                                  .Where(e => e.Category != null &&
-                                                         e.Category.Id.GetIntValue() == (int)BuiltInCategory.OST_RoomTags)
-                                                  .Cast<FamilySymbol>()
-                                                  .FirstOrDefault();
+            // Default: the room tag type used most in the model, else the first one (deterministic by id)
+            var types = new FilteredElementCollector(doc)
+                .OfClass(typeof(FamilySymbol))
+                .WhereElementIsElementType()
+                .Where(e => e.Category != null && e.Category.Id.GetIntValue() == (int)BuiltInCategory.OST_RoomTags)
+                .Cast<FamilySymbol>()
+                .ToList();
+            if (types.Count == 0) return null;
 
-            return roomTagType;
+            var usage = new FilteredElementCollector(doc)
+                .OfCategory(BuiltInCategory.OST_RoomTags)
+                .WhereElementIsNotElementType()
+                .GroupBy(t => t.GetTypeId().GetValue())
+                .ToDictionary(g => g.Key, g => g.Count());
+
+            return types
+                .OrderByDescending(t => usage.TryGetValue(t.Id.GetValue(), out int n) ? n : 0)
+                .ThenBy(t => t.Name == "Room Tag" ? 0 : 1)
+                .ThenBy(t => t.Id.GetValue())
+                .First();
         }
     }
 }

@@ -354,6 +354,11 @@ namespace RevitMCPCommandSet.Services
                 {
                     addedField.GridColumnWidth = fieldInfo.GridColumnWidth.Value;
                 }
+
+                if (fieldInfo.CalculateTotals && addedField.CanTotal())
+                {
+                    addedField.DisplayType = ScheduleFieldDisplayType.Totals;
+                }
             }
 
             return addedFields;
@@ -481,7 +486,12 @@ namespace RevitMCPCommandSet.Services
                 definition.ShowGrandTotalCount = ScheduleInfo.ShowGrandTotalCount.Value;
 
             if (!string.IsNullOrEmpty(ScheduleInfo.GrandTotalTitle))
+            {
+                // Revit throws "Display of grand total title is not enabled" unless the totals row and its title are on first
+                definition.ShowGrandTotal = true;
+                definition.ShowGrandTotalTitle = true;
                 definition.GrandTotalTitle = ScheduleInfo.GrandTotalTitle;
+            }
 
             if (ScheduleInfo.IncludeLinkedFiles.HasValue)
             {

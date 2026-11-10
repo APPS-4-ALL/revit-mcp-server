@@ -2301,6 +2301,10 @@
               "gridColumnWidth": {
                 "type": "number",
                 "description": "Column width in the schedule grid (in sheet units)"
+              },
+              "calculateTotals": {
+                "type": "boolean",
+                "description": "Sum this field in the grand total / group footers (e.g. Area). Default: false"
               }
             },
             "required": [
@@ -5356,7 +5360,7 @@
   },
   {
     "name": "renumber_elements",
-    "description": "Renumber rooms, doors, windows, or parking by location or name.",
+    "description": "Renumber rooms, doors, windows, or parking by location, clockwise order, or name.\n\nGUIDANCE:\n- \"Number rooms per floor, clockwise\" (any language): targetCategory='Rooms', sortBy='clockwise', perLevel=true, dryRun=false. Gives 101, 102... on level 1, 201... on level 2 (level number from the level name, e.g. '02 - Floor' -> 2).\n- clockwise sweeps from 12 o'clock around the center of each level's elements.\n- Unplaced rooms are skipped. dryRun defaults to true (preview only); pass dryRun=false to apply.",
     "input_schema": {
       "type": "object",
       "properties": {
@@ -5401,10 +5405,15 @@
           "type": "string",
           "enum": [
             "location",
+            "clockwise",
             "name",
             "none"
           ],
-          "description": "'location', 'name', or 'none'."
+          "description": "'location' (row by row), 'clockwise' (around each level's center, starting at north), 'name', or 'none'."
+        },
+        "perLevel": {
+          "type": "boolean",
+          "description": "Restart numbering on each level, prefixed by the level number (101.., 201..). startNumber/increment apply within each level. Default: false."
         },
         "dryRun": {
           "type": "boolean",
@@ -6259,10 +6268,14 @@
   },
   {
     "name": "tag_all_rooms",
-    "description": "Tag rooms in the current view with room tags.",
+    "description": "Tag rooms with room tags. Rooms already tagged in the target view are skipped, so re-running is safe.\n\nGUIDANCE:\n- \"Tag all rooms\" / \"tag every room\" (whole building): set allLevels=true. Tags the main floor plan of every level that has rooms, without changing the active view.\n- Default (allLevels false): tags the rooms in the active floor plan only.",
     "input_schema": {
       "type": "object",
       "properties": {
+        "allLevels": {
+          "type": "boolean",
+          "description": "Tag rooms on every level, each in that level's main floor plan. Default: false (active plan only)."
+        },
         "useLeader": {
           "type": "boolean",
           "default": false,

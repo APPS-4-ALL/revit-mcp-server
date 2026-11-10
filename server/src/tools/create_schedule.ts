@@ -72,6 +72,10 @@ export function registerCreateScheduleTool(server: McpServer) {
               .number()
               .optional()
               .describe("Column width in the schedule grid (in sheet units)"),
+            calculateTotals: z
+              .boolean()
+              .optional()
+              .describe("Sum this field in the grand total / group footers (e.g. Area). Default: false"),
           })
         )
         .optional()

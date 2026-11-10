@@ -253,6 +253,12 @@ public class ScheduleFieldInfo
     public double? GridColumnWidth { get; set; }
 
     /// <summary>
+    ///     Sum this field in group footers and the grand total row (numeric fields such as Area)
+    /// </summary>
+    [JsonProperty("calculateTotals")]
+    public bool CalculateTotals { get; set; }
+
+    /// <summary>
     ///     Format option (e.g. DUT_METERS for length, or custom format string)
     /// </summary>
     [JsonProperty("formatOption")]

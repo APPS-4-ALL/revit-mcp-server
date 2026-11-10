@@ -7,7 +7,12 @@ import { rawToolResponse, rawToolError } from "../utils/compactTool.js";
 export function registerRenumberElementsTool(server: McpServer) {
   server.tool(
     "renumber_elements",
-    "Renumber rooms, doors, windows, or parking by location or name.",
+    `Renumber rooms, doors, windows, or parking by location, clockwise order, or name.
+
+GUIDANCE:
+- "Number rooms per floor, clockwise" (any language): targetCategory='Rooms', sortBy='clockwise', perLevel=true, dryRun=false. Gives 101, 102... on level 1, 201... on level 2 (level number from the level name, e.g. '02 - Floor' -> 2).
+- clockwise sweeps from 12 o'clock around the center of each level's elements.
+- Unplaced rooms are skipped. dryRun defaults to true (preview only); pass dryRun=false to apply.`,
     {
       elementIds: z
         .array(z.number())
@@ -29,9 +34,13 @@ export function registerRenumberElementsTool(server: McpServer) {
       suffix: z.string().optional().describe("Suffix after the number"),
       increment: z.number().optional().describe("Increment between numbers (default: 1)"),
       sortBy: z
-        .enum(["location", "name", "none"])
+        .enum(["location", "clockwise", "name", "none"])
         .optional()
-        .describe("'location', 'name', or 'none'."),
+        .describe("'location' (row by row), 'clockwise' (around each level's center, starting at north), 'name', or 'none'."),
+      perLevel: z
+        .boolean()
+        .optional()
+        .describe("Restart numbering on each level, prefixed by the level number (101.., 201..). startNumber/increment apply within each level. Default: false."),
       dryRun: z
         .boolean()
         .optional()
@@ -47,6 +56,7 @@ export function registerRenumberElementsTool(server: McpServer) {
         suffix: args.suffix ?? "",
         increment: args.increment ?? 1,
         sortBy: args.sortBy ?? "location",
+        perLevel: args.perLevel ?? false,
         dryRun: args.dryRun ?? true,
       };
 

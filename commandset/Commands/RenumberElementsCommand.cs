@@ -5,7 +5,7 @@ using RevitMCPSDK.API.Base;
 
 namespace RevitMCPCommandSet.Commands
 {
-    public class RenumberElementsCommand : ExternalEventCommandBase
+    public class RenumberElementsCommand : WaitableCommandBase
     {
         private static readonly object _executionLock = new object();
         private RenumberElementsEventHandler _handler => (RenumberElementsEventHandler)Handler;
@@ -32,6 +32,7 @@ namespace RevitMCPCommandSet.Commands
                     _handler.Increment = parameters?["increment"]?.Value<int>() ?? 1;
                     _handler.SortBy = parameters?["sortBy"]?.Value<string>() ?? "location";
                     _handler.DryRun = parameters?["dryRun"]?.Value<bool>() ?? true;
+                    _handler.PerLevel = parameters?["perLevel"]?.Value<bool>() ?? false;
 
                     if (RaiseAndWaitForCompletion(15000))
                     {

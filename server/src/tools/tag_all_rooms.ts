@@ -7,8 +7,16 @@ import { rawToolResponse, rawToolError } from "../utils/compactTool.js";
 export function registerTagAllRoomsTool(server: McpServer) {
   server.tool(
     "tag_all_rooms",
-    "Tag rooms in the current view with room tags.",
+    `Tag rooms with room tags. Rooms already tagged in the target view are skipped, so re-running is safe.
+
+GUIDANCE:
+- "Tag all rooms" / "tag every room" (whole building): set allLevels=true. Tags the main floor plan of every level that has rooms, without changing the active view.
+- Default (allLevels false): tags the rooms in the active floor plan only.`,
     {
+      allLevels: z
+        .boolean()
+        .optional()
+        .describe("Tag rooms on every level, each in that level's main floor plan. Default: false (active plan only)."),
       useLeader: z
         .boolean()
         .optional()
@@ -24,7 +32,7 @@ export function registerTagAllRoomsTool(server: McpServer) {
         .describe("Optional array of specific room element IDs to tag."),
     },
     async (args, extra) => {
-      const params = args;
+      const params = { ...args, allLevels: args.allLevels ?? false };
       try {
         const response = await withRevitConnection(async (revitClient) => {
           return await revitClient.sendCommand("tag_rooms", params);
