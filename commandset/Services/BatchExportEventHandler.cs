@@ -13,7 +13,7 @@ namespace RevitMCPCommandSet.Services
         public List<long> SheetIds { get; set; } = new List<long>();
         public List<long> ViewIds { get; set; } = new List<long>();
         public string ExportPath { get; set; } = "";
-        public string PaperSize { get; set; } = "A4";
+        public string PaperSize { get; set; } = "Auto";
         public AIResult<object> Result { get; private set; }
 
         public void SetParameters(string format, List<long> sheetIds, List<long> viewIds, string exportPath, string paperSize)
@@ -22,7 +22,7 @@ namespace RevitMCPCommandSet.Services
             SheetIds = sheetIds ?? new List<long>();
             ViewIds = viewIds ?? new List<long>();
             ExportPath = exportPath ?? "";
-            PaperSize = paperSize ?? "A4";
+            PaperSize = paperSize ?? "Auto";
             _resetEvent.Reset();
         }
 
@@ -80,22 +80,38 @@ namespace RevitMCPCommandSet.Services
                 throw new Exception("No sheets/views to export");
 
             var options = new PDFExportOptions();
-            options.FileName = "Export";
             options.Combine = false;
+
+            // One file per sheet, named "<sheet number> - <sheet name>.pdf"
+            var number = TableCellCombinedParameterData.Create();
+            number.ParamId = new ElementId(BuiltInParameter.SHEET_NUMBER);
+            number.CategoryId = new ElementId(BuiltInCategory.OST_Sheets);
+            number.Separator = " - ";
+            var name = TableCellCombinedParameterData.Create();
+            name.ParamId = new ElementId(BuiltInParameter.SHEET_NAME);
+            name.CategoryId = new ElementId(BuiltInCategory.OST_Sheets);
+            options.SetNamingRule(new List<TableCellCombinedParameterData> { number, name });
 
             switch (PaperSize)
             {
+                case "Auto":
+                case "":
+                case null:
+                    options.PaperFormat = ExportPaperFormat.Default; // each sheet's own size
+                    break;
+                case "A4": options.PaperFormat = ExportPaperFormat.ISO_A4; break;
                 case "A3": options.PaperFormat = ExportPaperFormat.ISO_A3; break;
                 case "A2": options.PaperFormat = ExportPaperFormat.ISO_A2; break;
                 case "A1": options.PaperFormat = ExportPaperFormat.ISO_A1; break;
                 case "A0": options.PaperFormat = ExportPaperFormat.ISO_A0; break;
                 case "Letter": options.PaperFormat = ExportPaperFormat.ANSI_A; break;
                 case "Tabloid": options.PaperFormat = ExportPaperFormat.ANSI_B; break;
-                default: options.PaperFormat = ExportPaperFormat.ISO_A4; break;
+                default: options.PaperFormat = ExportPaperFormat.Default; break;
             }
 
+            var started = DateTime.Now.AddSeconds(-2);
             doc.Export(exportPath, viewIds, options);
-            Result = BuildExportResult("PDF", "*.pdf", exportPath);
+            Result = BuildExportResult("PDF", "*.pdf", exportPath, started);
         }
 
         private void ExportDwg(Document doc, string exportPath)
@@ -135,9 +151,13 @@ namespace RevitMCPCommandSet.Services
             Result = BuildExportResult("IFC", "*.ifc", exportPath);
         }
 
-        private static AIResult<object> BuildExportResult(string format, string searchPattern, string exportPath)
+        private static AIResult<object> BuildExportResult(string format, string searchPattern, string exportPath, DateTime? since = null)
         {
-            var exportedFiles = System.IO.Directory.GetFiles(exportPath, searchPattern);
+            // Only report files written by this export, not older files already in the folder
+            var exportedFiles = System.IO.Directory.GetFiles(exportPath, searchPattern)
+                .Where(f => since == null || System.IO.File.GetLastWriteTime(f) >= since.Value)
+                .OrderBy(f => f, StringComparer.OrdinalIgnoreCase)
+                .ToArray();
             return new AIResult<object>
             {
                 Success = true,

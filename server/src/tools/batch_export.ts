@@ -7,7 +7,7 @@ import { rawToolResponse, rawToolError } from "../utils/compactTool.js";
 export function registerBatchExportTool(server: McpServer) {
   server.tool(
     "batch_export",
-    "Export multiple views/sheets to PDF, DWG, DXF, DGN, or image formats.",
+    "Export multiple views/sheets to PDF, DWG, or IFC. PDF: one file per sheet named '<sheet number> - <sheet name>.pdf', printed at each sheet's own size. The folder is created if missing.",
     {
       format: z
         .enum(["PDF", "DWG", "IFC"])
@@ -25,9 +25,9 @@ export function registerBatchExportTool(server: McpServer) {
         .optional()
         .describe("Directory path for exported files. If omitted, uses temp folder."),
       paperSize: z
-        .enum(["A4", "A3", "A2", "A1", "A0", "Letter", "Tabloid"])
+        .enum(["Auto", "A4", "A3", "A2", "A1", "A0", "Letter", "Tabloid"])
         .optional()
-        .describe("Paper size for PDF export (default: A4)"),
+        .describe("Paper size for PDF export. Default 'Auto' = each sheet's own size; a fixed size scales sheets to fit."),
     },
     async (args, extra) => {
       const params = {
@@ -35,7 +35,7 @@ export function registerBatchExportTool(server: McpServer) {
         sheetIds: args.sheetIds ?? [],
         viewIds: args.viewIds ?? [],
         exportPath: args.exportPath ?? "",
-        paperSize: args.paperSize ?? "A4",
+        paperSize: args.paperSize ?? "Auto",
       };
 
       try {

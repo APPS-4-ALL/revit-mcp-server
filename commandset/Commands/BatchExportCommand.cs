@@ -27,9 +27,9 @@ namespace RevitMCPCommandSet.Commands
                     _handler.SheetIds = parameters?["sheetIds"]?.ToObject<List<long>>() ?? new List<long>();
                     _handler.ViewIds = parameters?["viewIds"]?.ToObject<List<long>>() ?? new List<long>();
                     _handler.ExportPath = parameters?["exportPath"]?.Value<string>() ?? "";
-                    _handler.PaperSize = parameters?["paperSize"]?.Value<string>() ?? "A4";
+                    _handler.PaperSize = parameters?["paperSize"]?.Value<string>() ?? "Auto";
 
-                    if (RaiseAndWaitForCompletion(60000))
+                    if (RaiseAndWaitForCompletion(300000))
                     {
                         return _handler.Result;
                     }

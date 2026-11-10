@@ -8,7 +8,7 @@ import { rawToolResponse, rawToolError } from "../utils/compactTool.js";
 export function registerBatchCreateSheetsTool(server: McpServer) {
   server.tool(
     "batch_create_sheets",
-    "Create multiple sheets at once with title blocks and optional view placement. Each sheet can have its own number, name, title block, and views to place.\n\nGUIDANCE:\n- Create multiple sheets: provide array of {sheetNumber, sheetName, titleBlockName}\n- Auto-sequence: use a numbering pattern like A101, A102, A103\n- With views: optionally specify viewIds to auto-place on each sheet\n\nTIPS:\n- Sheet numbers must be unique — check existing sheets first\n- Use get_available_family_types with \"Title Blocks\" to find title block names\n- Use place_viewport after creation to position views on sheets\n- Use align_viewports to align view positions across multiple sheets",
+    "Create multiple sheets at once and place views on them, centered on the title block. Each sheet can have its own number, name, title block, and views to place.\n\nGUIDANCE:\n- \"A sheet per floor with its plan\": one entry per level, e.g. {number:'A-101', name:'01 - Entry Level', viewNames:['01 - Entry Level']}. Floor plans are usually named like their level (see get_project_info levels).\n- Views can be given by viewNames (exact view name, floor plans preferred) or viewIds.\n- Title block: omit to auto-pick the smallest one the views fit on at their scale.\n- A view already on another sheet is duplicated with its annotations as '<view> - <sheet number>' (ifViewOnAnotherSheet='skip' to leave it out).\n- The first new sheet is opened (open=false to stay in the current view).\n\nTIPS:\n- Sheet numbers must be unique — check existing sheets first\n- To export the new sheets, pass their sheetIds from this result to batch_export",
     {
       sheets: z
         .array(
@@ -23,13 +23,25 @@ export function registerBatchCreateSheetsTool(server: McpServer) {
               .array(z.number())
               .optional()
               .describe("View IDs to place on this sheet"),
+            viewNames: z
+              .array(z.string())
+              .optional()
+              .describe("View names to place on this sheet (exact names, e.g. '01 - Entry Level')"),
           })
         )
         .describe("Array of sheet definitions to create"),
       defaultTitleBlockName: z
         .string()
         .optional()
-        .describe("Default title block for sheets that don't specify one"),
+        .describe("Default title block for sheets that don't specify one. Omit to auto-fit."),
+      ifViewOnAnotherSheet: z
+        .enum(["duplicate", "skip"])
+        .optional()
+        .describe("When a view is already on another sheet: 'duplicate' (default) places a copy, 'skip' leaves it out."),
+      open: z
+        .boolean()
+        .optional()
+        .describe("Open the first created sheet. Default: true"),
     },
     async (args, extra) => {
       try {
@@ -37,12 +49,14 @@ export function registerBatchCreateSheetsTool(server: McpServer) {
           return await revitClient.sendCommand("batch_create_sheets", args);
         });
 
-        const data = typeof response === 'object' ? response : {};
-        const sheetsCreated = data.sheetsCreated ?? data.createdSheets?.length ?? data.count ?? 0;
+        const data: any = typeof response === 'object' && response !== null ? response : {};
+        const payload = data.Response ?? data.response ?? data;
+        const sheetsCreated = payload.totalCreated ?? payload.sheetsCreated ?? 0;
+        const anyViewPlaced = (payload.sheets ?? []).some((s: any) => (s.viewsPlaced ?? []).some((v: any) => v.success));
 
         const enriched = addSuggestions(response, [
-          suggestIf(sheetsCreated > 0, "Place views on the new sheets", "Sheets are empty — place viewports to populate them"),
-          suggestIf(sheetsCreated > 0, "Align viewports across the new sheets", "Consistent viewport placement improves drawing set quality"),
+          suggestIf(sheetsCreated > 0 && !anyViewPlaced, "Place views on the new sheets", "Sheets are empty — pass viewNames/viewIds or use place_viewport"),
+          suggestIf(sheetsCreated > 0, "Export the new sheets", "batch_export format='PDF' with these sheetIds"),
         ]);
 
         return rawToolResponse("batch_create_sheets", enriched);

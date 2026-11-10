@@ -29,12 +29,15 @@ namespace RevitMCPCommandSet.Commands.SheetManagement
                     Number = s["number"]?.ToString() ?? "",
                     Name = s["name"]?.ToString() ?? "",
                     TitleBlockName = s["titleBlockName"]?.ToString(),
-                    ViewIds = (s["viewIds"] as JArray)?.Select(v => v.Value<long>()).ToList()
+                    ViewIds = (s["viewIds"] as JArray)?.Select(v => v.Value<long>()).ToList(),
+                    ViewNames = (s["viewNames"] as JArray)?.Select(v => v.ToString()).ToList()
                 }).ToList();
 
                 string defaultTitleBlockName = parameters?["defaultTitleBlockName"]?.ToString();
+                string ifViewOnAnotherSheet = parameters?["ifViewOnAnotherSheet"]?.ToString() ?? "duplicate";
+                bool open = parameters?["open"]?.Value<bool>() ?? true;
 
-                _handler.SetParameters(sheets, defaultTitleBlockName);
+                _handler.SetParameters(sheets, defaultTitleBlockName, ifViewOnAnotherSheet, open);
 
                 if (RaiseAndWaitForCompletion(30000))
                     return _handler.Result;

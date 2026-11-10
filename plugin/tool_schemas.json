@@ -471,7 +471,7 @@
   },
   {
     "name": "batch_create_sheets",
-    "description": "Create multiple sheets at once with title blocks and optional view placement. Each sheet can have its own number, name, title block, and views to place.\n\nGUIDANCE:\n- Create multiple sheets: provide array of {sheetNumber, sheetName, titleBlockName}\n- Auto-sequence: use a numbering pattern like A101, A102, A103\n- With views: optionally specify viewIds to auto-place on each sheet\n\nTIPS:\n- Sheet numbers must be unique — check existing sheets first\n- Use get_available_family_types with \"Title Blocks\" to find title block names\n- Use place_viewport after creation to position views on sheets\n- Use align_viewports to align view positions across multiple sheets",
+    "description": "Create multiple sheets at once and place views on them, centered on the title block. Each sheet can have its own number, name, title block, and views to place.\n\nGUIDANCE:\n- \"A sheet per floor with its plan\": one entry per level, e.g. {number:'A-101', name:'01 - Entry Level', viewNames:['01 - Entry Level']}. Floor plans are usually named like their level (see get_project_info levels).\n- Views can be given by viewNames (exact view name, floor plans preferred) or viewIds.\n- Title block: omit to auto-pick the smallest one the views fit on at their scale.\n- A view already on another sheet is duplicated with its annotations as '<view> - <sheet number>' (ifViewOnAnotherSheet='skip' to leave it out).\n- The first new sheet is opened (open=false to stay in the current view).\n\nTIPS:\n- Sheet numbers must be unique — check existing sheets first\n- To export the new sheets, pass their sheetIds from this result to batch_export",
     "input_schema": {
       "type": "object",
       "properties": {
@@ -498,6 +498,13 @@
                   "type": "number"
                 },
                 "description": "View IDs to place on this sheet"
+              },
+              "viewNames": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "View names to place on this sheet (exact names, e.g. '01 - Entry Level')"
               }
             },
             "required": [
@@ -510,7 +517,19 @@
         },
         "defaultTitleBlockName": {
           "type": "string",
-          "description": "Default title block for sheets that don't specify one"
+          "description": "Default title block for sheets that don't specify one. Omit to auto-fit."
+        },
+        "ifViewOnAnotherSheet": {
+          "type": "string",
+          "enum": [
+            "duplicate",
+            "skip"
+          ],
+          "description": "When a view is already on another sheet: 'duplicate' (default) places a copy, 'skip' leaves it out."
+        },
+        "open": {
+          "type": "boolean",
+          "description": "Open the first created sheet. Default: true"
         }
       },
       "required": [
@@ -522,7 +541,7 @@
   },
   {
     "name": "batch_export",
-    "description": "Export multiple views/sheets to PDF, DWG, DXF, DGN, or image formats.",
+    "description": "Export multiple views/sheets to PDF, DWG, or IFC. PDF: one file per sheet named '<sheet number> - <sheet name>.pdf', printed at each sheet's own size. The folder is created if missing.",
     "input_schema": {
       "type": "object",
       "properties": {
@@ -556,6 +575,7 @@
         "paperSize": {
           "type": "string",
           "enum": [
+            "Auto",
             "A4",
             "A3",
             "A2",
@@ -564,7 +584,7 @@
             "Letter",
             "Tabloid"
           ],
-          "description": "Paper size for PDF export (default: A4)"
+          "description": "Paper size for PDF export. Default 'Auto' = each sheet's own size; a fixed size scales sheets to fit."
         }
       },
       "required": [
