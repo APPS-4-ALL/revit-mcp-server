@@ -5,7 +5,7 @@ using RevitMCPSDK.API.Base;
 
 namespace RevitMCPCommandSet.Commands
 {
-    public class ExportFamiliesCommand : ExternalEventCommandBase
+    public class ExportFamiliesCommand : WaitableCommandBase
     {
         private static readonly object _executionLock = new object();
         private ExportFamiliesEventHandler _handler => (ExportFamiliesEventHandler)Handler;

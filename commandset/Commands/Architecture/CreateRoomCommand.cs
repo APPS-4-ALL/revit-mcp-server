@@ -9,7 +9,7 @@ namespace RevitMCPCommandSet.Commands.Architecture
     /// <summary>
     /// Command to create and place rooms in Revit
     /// </summary>
-    public class CreateRoomCommand : ExternalEventCommandBase
+    public class CreateRoomCommand : WaitableCommandBase
     {
         private CreateRoomEventHandler _handler => (CreateRoomEventHandler)Handler;
 

@@ -5,7 +5,7 @@ using RevitMCPSDK.API.Base;
 
 namespace RevitMCPCommandSet.Commands.Access
 {
-    public class DeleteWorksetCommand : ExternalEventCommandBase
+    public class DeleteWorksetCommand : WaitableCommandBase
     {
         private static readonly object _executionLock = new object();
         private DeleteWorksetEventHandler _handler => (DeleteWorksetEventHandler)Handler;

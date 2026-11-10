@@ -6,7 +6,7 @@ using RevitMCPSDK.API.Base;
 
 namespace RevitMCPCommandSet.Commands.Access
 {
-    public class SetElementPhaseCommand : ExternalEventCommandBase
+    public class SetElementPhaseCommand : WaitableCommandBase
     {
         private static readonly object _executionLock = new object();
         private SetElementPhaseEventHandler _handler => (SetElementPhaseEventHandler)Handler;

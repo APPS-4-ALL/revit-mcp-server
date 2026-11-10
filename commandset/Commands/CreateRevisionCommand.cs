@@ -5,7 +5,7 @@ using RevitMCPSDK.API.Base;
 
 namespace RevitMCPCommandSet.Commands
 {
-    public class CreateRevisionCommand : ExternalEventCommandBase
+    public class CreateRevisionCommand : WaitableCommandBase
     {
         private static readonly object _executionLock = new object();
         private CreateRevisionEventHandler _handler => (CreateRevisionEventHandler)Handler;

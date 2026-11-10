@@ -5,7 +5,7 @@ using RevitMCPSDK.API.Base;
 
 namespace RevitMCPCommandSet.Commands.DataExtraction
 {
-    public class SyncCsvParametersCommand : ExternalEventCommandBase
+    public class SyncCsvParametersCommand : WaitableCommandBase
     {
         private SyncCsvParametersEventHandler _handler => (SyncCsvParametersEventHandler)Handler;
 

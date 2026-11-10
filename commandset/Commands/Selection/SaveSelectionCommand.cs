@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace RevitMCPCommandSet.Commands.Selection
 {
-    public class SaveSelectionCommand : ExternalEventCommandBase
+    public class SaveSelectionCommand : WaitableCommandBase
     {
         private SaveSelectionEventHandler _handler => (SaveSelectionEventHandler)Handler;
 

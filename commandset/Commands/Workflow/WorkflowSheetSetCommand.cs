@@ -8,7 +8,7 @@ using RevitMCPSDK.API.Base;
 
 namespace RevitMCPCommandSet.Commands.Workflow
 {
-    public class WorkflowSheetSetCommand : ExternalEventCommandBase
+    public class WorkflowSheetSetCommand : WaitableCommandBase
     {
         private WorkflowSheetSetEventHandler _handler => (WorkflowSheetSetEventHandler)Handler;
         public override string CommandName => "workflow_sheet_set";

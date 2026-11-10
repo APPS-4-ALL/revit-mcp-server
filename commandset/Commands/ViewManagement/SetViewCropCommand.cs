@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace RevitMCPCommandSet.Commands.ViewManagement
 {
-    public class SetViewCropCommand : ExternalEventCommandBase
+    public class SetViewCropCommand : WaitableCommandBase
     {
         private static readonly object _executionLock = new object();
         private SetViewCropEventHandler _handler => (SetViewCropEventHandler)Handler;

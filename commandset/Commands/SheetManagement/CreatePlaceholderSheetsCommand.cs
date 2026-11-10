@@ -5,7 +5,7 @@ using RevitMCPSDK.API.Base;
 
 namespace RevitMCPCommandSet.Commands.SheetManagement
 {
-    public class CreatePlaceholderSheetsCommand : ExternalEventCommandBase
+    public class CreatePlaceholderSheetsCommand : WaitableCommandBase
     {
         private CreatePlaceholderSheetsEventHandler _handler => (CreatePlaceholderSheetsEventHandler)Handler;
 

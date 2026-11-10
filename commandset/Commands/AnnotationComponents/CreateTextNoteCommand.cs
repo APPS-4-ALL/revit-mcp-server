@@ -5,7 +5,7 @@ using RevitMCPSDK.API.Base;
 
 namespace RevitMCPCommandSet.Commands.AnnotationComponents
 {
-    public class CreateTextNoteCommand : ExternalEventCommandBase
+    public class CreateTextNoteCommand : WaitableCommandBase
     {
         private static readonly object _executionLock = new object();
         private CreateTextNoteEventHandler _handler => (CreateTextNoteEventHandler)Handler;

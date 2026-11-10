@@ -5,7 +5,7 @@ using RevitMCPSDK.API.Base;
 
 namespace RevitMCPCommandSet.Commands
 {
-    public class CreateViewFilterCommand : ExternalEventCommandBase
+    public class CreateViewFilterCommand : WaitableCommandBase
     {
         private static readonly object _executionLock = new object();
         private CreateViewFilterEventHandler _handler => (CreateViewFilterEventHandler)Handler;

@@ -5,7 +5,7 @@ using RevitMCPSDK.API.Base;
 
 namespace RevitMCPCommandSet.Commands.SheetManagement
 {
-    public class BatchCreateSheetsCommand : ExternalEventCommandBase
+    public class BatchCreateSheetsCommand : WaitableCommandBase
     {
         private BatchCreateSheetsEventHandler _handler => (BatchCreateSheetsEventHandler)Handler;
 

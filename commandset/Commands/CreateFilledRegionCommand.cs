@@ -5,7 +5,7 @@ using RevitMCPSDK.API.Base;
 
 namespace RevitMCPCommandSet.Commands
 {
-    public class CreateFilledRegionCommand : ExternalEventCommandBase
+    public class CreateFilledRegionCommand : WaitableCommandBase
     {
         private static readonly object _executionLock = new object();
         private CreateFilledRegionEventHandler _handler => (CreateFilledRegionEventHandler)Handler;

@@ -6,7 +6,7 @@ using RevitMCPSDK.API.Base;
 
 namespace RevitMCPCommandSet.Commands.Access
 {
-    public class SetCompoundStructureCommand : ExternalEventCommandBase
+    public class SetCompoundStructureCommand : WaitableCommandBase
     {
         private static readonly object _executionLock = new object();
         private SetCompoundStructureEventHandler _handler => (SetCompoundStructureEventHandler)Handler;

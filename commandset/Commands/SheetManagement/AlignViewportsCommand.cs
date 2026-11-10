@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace RevitMCPCommandSet.Commands.SheetManagement
 {
-    public class AlignViewportsCommand : ExternalEventCommandBase
+    public class AlignViewportsCommand : WaitableCommandBase
     {
         private static readonly object _executionLock = new object();
         private AlignViewportsEventHandler _handler => (AlignViewportsEventHandler)Handler;

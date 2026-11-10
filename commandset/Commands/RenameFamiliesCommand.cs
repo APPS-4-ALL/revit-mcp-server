@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace RevitMCPCommandSet.Commands
 {
-    public class RenameFamiliesCommand : ExternalEventCommandBase
+    public class RenameFamiliesCommand : WaitableCommandBase
     {
         private static readonly object _executionLock = new object();
         private RenameFamiliesEventHandler _handler => (RenameFamiliesEventHandler)Handler;

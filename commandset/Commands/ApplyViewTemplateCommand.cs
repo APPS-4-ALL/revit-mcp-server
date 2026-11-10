@@ -5,7 +5,7 @@ using RevitMCPSDK.API.Base;
 
 namespace RevitMCPCommandSet.Commands
 {
-    public class ApplyViewTemplateCommand : ExternalEventCommandBase
+    public class ApplyViewTemplateCommand : WaitableCommandBase
     {
         private static readonly object _executionLock = new object();
         private ApplyViewTemplateEventHandler _handler => (ApplyViewTemplateEventHandler)Handler;

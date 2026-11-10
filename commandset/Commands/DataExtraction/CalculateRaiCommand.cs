@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace RevitMCPCommandSet.Commands.DataExtraction
 {
-    public class CalculateRaiCommand : ExternalEventCommandBase
+    public class CalculateRaiCommand : WaitableCommandBase
     {
         private static readonly object _executionLock = new object();
         private CalculateRaiEventHandler _handler => (CalculateRaiEventHandler)Handler;

@@ -6,7 +6,7 @@ using RevitMCPSDK.API.Base;
 
 namespace RevitMCPCommandSet.Commands.Workflow
 {
-    public class WorkflowClashReviewCommand : ExternalEventCommandBase
+    public class WorkflowClashReviewCommand : WaitableCommandBase
     {
         private WorkflowClashReviewEventHandler _handler => (WorkflowClashReviewEventHandler)Handler;
         public override string CommandName => "workflow_clash_review";

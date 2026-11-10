@@ -5,7 +5,7 @@ using RevitMCPSDK.API.Base;
 
 namespace RevitMCPCommandSet.Commands.Access
 {
-    public class GetScheduleDataCommand : ExternalEventCommandBase
+    public class GetScheduleDataCommand : WaitableCommandBase
     {
         private static readonly object _executionLock = new object();
         private GetScheduleDataEventHandler _handler => (GetScheduleDataEventHandler)Handler;

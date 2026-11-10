@@ -6,7 +6,7 @@ using RevitMCPSDK.API.Base;
 
 namespace RevitMCPCommandSet.Commands.Workflow
 {
-    public class WorkflowRoomDocumentationCommand : ExternalEventCommandBase
+    public class WorkflowRoomDocumentationCommand : WaitableCommandBase
     {
         private WorkflowRoomDocumentationEventHandler _handler => (WorkflowRoomDocumentationEventHandler)Handler;
         public override string CommandName => "workflow_room_documentation";

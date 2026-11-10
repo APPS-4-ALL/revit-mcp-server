@@ -5,7 +5,7 @@ using RevitMCPSDK.API.Base;
 
 namespace RevitMCPCommandSet.Commands
 {
-    public class CadLinkCleanupCommand : ExternalEventCommandBase
+    public class CadLinkCleanupCommand : WaitableCommandBase
     {
         private static readonly object _executionLock = new object();
         private CadLinkCleanupEventHandler _handler => (CadLinkCleanupEventHandler)Handler;

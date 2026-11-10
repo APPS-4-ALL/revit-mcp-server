@@ -6,7 +6,7 @@ using System;
 
 namespace RevitMCPCommandSet.Commands.SheetManagement
 {
-    public class DuplicateSheetWithViewsCommand : ExternalEventCommandBase
+    public class DuplicateSheetWithViewsCommand : WaitableCommandBase
     {
         private static readonly object _executionLock = new object();
         private DuplicateSheetWithViewsEventHandler _handler => (DuplicateSheetWithViewsEventHandler)Handler;

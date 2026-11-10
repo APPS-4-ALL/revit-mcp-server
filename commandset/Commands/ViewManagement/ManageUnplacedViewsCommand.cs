@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace RevitMCPCommandSet.Commands.ViewManagement
 {
-    public class ManageUnplacedViewsCommand : ExternalEventCommandBase
+    public class ManageUnplacedViewsCommand : WaitableCommandBase
     {
         private static readonly object _executionLock = new object();
         private ManageUnplacedViewsEventHandler _handler => (ManageUnplacedViewsEventHandler)Handler;

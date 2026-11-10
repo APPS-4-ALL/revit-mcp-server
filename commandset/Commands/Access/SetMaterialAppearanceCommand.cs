@@ -5,7 +5,7 @@ using RevitMCPSDK.API.Base;
 
 namespace RevitMCPCommandSet.Commands.Access
 {
-    public class SetMaterialAppearanceCommand : ExternalEventCommandBase
+    public class SetMaterialAppearanceCommand : WaitableCommandBase
     {
         private static readonly object _executionLock = new object();
         private SetMaterialAppearanceEventHandler _handler => (SetMaterialAppearanceEventHandler)Handler;

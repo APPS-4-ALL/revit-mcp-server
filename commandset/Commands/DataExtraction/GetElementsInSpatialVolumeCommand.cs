@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace RevitMCPCommandSet.Commands.DataExtraction
 {
-    public class GetElementsInSpatialVolumeCommand : ExternalEventCommandBase
+    public class GetElementsInSpatialVolumeCommand : WaitableCommandBase
     {
         private static readonly object _executionLock = new object();
         private GetElementsInSpatialVolumeEventHandler _handler => (GetElementsInSpatialVolumeEventHandler)Handler;

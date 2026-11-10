@@ -5,7 +5,7 @@ using RevitMCPSDK.API.Base;
 
 namespace RevitMCPCommandSet.Commands
 {
-    public class ClashDetectionCommand : ExternalEventCommandBase
+    public class ClashDetectionCommand : WaitableCommandBase
     {
         private static readonly object _executionLock = new object();
         private ClashDetectionEventHandler _handler => (ClashDetectionEventHandler)Handler;

@@ -5,7 +5,7 @@ using RevitMCPSDK.API.Base;
 
 namespace RevitMCPCommandSet.Commands
 {
-    public class TagWallsCommand : ExternalEventCommandBase
+    public class TagWallsCommand : WaitableCommandBase
     {
         private TagWallsEventHandler _handler => (TagWallsEventHandler)Handler;
 

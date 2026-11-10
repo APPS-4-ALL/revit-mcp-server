@@ -5,7 +5,7 @@ using RevitMCPSDK.API.Base;
 
 namespace RevitMCPCommandSet.Commands
 {
-    public class RenameViewsCommand : ExternalEventCommandBase
+    public class RenameViewsCommand : WaitableCommandBase
     {
         private static readonly object _executionLock = new object();
         private RenameViewsEventHandler _handler => (RenameViewsEventHandler)Handler;

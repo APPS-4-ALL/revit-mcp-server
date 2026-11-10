@@ -5,7 +5,7 @@ using RevitMCPSDK.API.Base;
 
 namespace RevitMCPCommandSet.Commands
 {
-    public class OverrideGraphicsCommand : ExternalEventCommandBase
+    public class OverrideGraphicsCommand : WaitableCommandBase
     {
         private static readonly object _executionLock = new object();
         private OverrideGraphicsEventHandler _handler => (OverrideGraphicsEventHandler)Handler;

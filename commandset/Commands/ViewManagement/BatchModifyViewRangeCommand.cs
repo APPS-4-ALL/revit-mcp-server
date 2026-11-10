@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace RevitMCPCommandSet.Commands.ViewManagement
 {
-    public class BatchModifyViewRangeCommand : ExternalEventCommandBase
+    public class BatchModifyViewRangeCommand : WaitableCommandBase
     {
         private static readonly object _executionLock = new object();
         private BatchModifyViewRangeEventHandler _handler => (BatchModifyViewRangeEventHandler)Handler;

@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace RevitMCPCommandSet.Commands.DataExtraction
 {
-    public class TransferParametersCommand : ExternalEventCommandBase
+    public class TransferParametersCommand : WaitableCommandBase
     {
         private static readonly object _executionLock = new object();
         private TransferParametersEventHandler _handler => (TransferParametersEventHandler)Handler;

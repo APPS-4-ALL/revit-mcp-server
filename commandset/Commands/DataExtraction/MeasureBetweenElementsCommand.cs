@@ -5,7 +5,7 @@ using RevitMCPSDK.API.Base;
 
 namespace RevitMCPCommandSet.Commands.DataExtraction
 {
-    public class MeasureBetweenElementsCommand : ExternalEventCommandBase
+    public class MeasureBetweenElementsCommand : WaitableCommandBase
     {
         private MeasureBetweenElementsEventHandler _handler => (MeasureBetweenElementsEventHandler)Handler;
 

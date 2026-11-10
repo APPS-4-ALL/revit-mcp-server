@@ -6,7 +6,7 @@ using RevitMCPSDK.API.Base;
 
 namespace RevitMCPCommandSet.Commands.Workflow
 {
-    public class WorkflowDataRoundtripCommand : ExternalEventCommandBase
+    public class WorkflowDataRoundtripCommand : WaitableCommandBase
     {
         private WorkflowDataRoundtripEventHandler _handler => (WorkflowDataRoundtripEventHandler)Handler;
         public override string CommandName => "workflow_data_roundtrip";

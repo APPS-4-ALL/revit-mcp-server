@@ -6,7 +6,7 @@ using System;
 
 namespace RevitMCPCommandSet.Commands.DataExtraction
 {
-    public class AuditFamiliesCommand : ExternalEventCommandBase
+    public class AuditFamiliesCommand : WaitableCommandBase
     {
         private static readonly object _executionLock = new object();
         private AuditFamiliesEventHandler _handler => (AuditFamiliesEventHandler)Handler;

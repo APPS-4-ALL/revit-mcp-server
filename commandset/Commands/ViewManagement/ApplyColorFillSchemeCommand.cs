@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace RevitMCPCommandSet.Commands.ViewManagement
 {
-    public class ApplyColorFillSchemeCommand : ExternalEventCommandBase
+    public class ApplyColorFillSchemeCommand : WaitableCommandBase
     {
         private static readonly object _executionLock = new object();
         private ApplyColorFillSchemeEventHandler _handler => (ApplyColorFillSchemeEventHandler)Handler;

@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace RevitMCPCommandSet.Commands.ViewManagement
 {
-    public class CreateElevationsFromRoomsCommand : ExternalEventCommandBase
+    public class CreateElevationsFromRoomsCommand : WaitableCommandBase
     {
         private static readonly object _executionLock = new object();
         private CreateElevationsFromRoomsEventHandler _handler => (CreateElevationsFromRoomsEventHandler)Handler;

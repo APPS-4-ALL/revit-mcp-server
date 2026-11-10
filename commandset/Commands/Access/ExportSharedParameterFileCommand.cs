@@ -6,7 +6,7 @@ using RevitMCPSDK.API.Base;
 
 namespace RevitMCPCommandSet.Commands.Access
 {
-    public class ExportSharedParameterFileCommand : ExternalEventCommandBase
+    public class ExportSharedParameterFileCommand : WaitableCommandBase
     {
         private ExportSharedParameterFileEventHandler _handler => (ExportSharedParameterFileEventHandler)Handler;
         public override string CommandName => "export_shared_parameter_file";

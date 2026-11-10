@@ -5,7 +5,7 @@ using RevitMCPSDK.API.Base;
 
 namespace RevitMCPCommandSet.Commands.Access
 {
-    public class FindUntaggedElementsCommand : ExternalEventCommandBase
+    public class FindUntaggedElementsCommand : WaitableCommandBase
     {
         private static readonly object _executionLock = new object();
         private FindUntaggedElementsEventHandler _handler => (FindUntaggedElementsEventHandler)Handler;

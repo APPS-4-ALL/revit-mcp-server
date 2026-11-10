@@ -7,7 +7,7 @@ namespace RevitMCPCommandSet.Commands.ExecuteDynamicCode
     /// <summary>
     /// Command class for handling code execution
     /// </summary>
-    public class ExecuteCodeCommand : ExternalEventCommandBase
+    public class ExecuteCodeCommand : WaitableCommandBase
     {
         private ExecuteCodeEventHandler _handler => (ExecuteCodeEventHandler)Handler;
 

@@ -6,7 +6,7 @@ using RevitMCPSDK.API.Base;
 
 namespace RevitMCPCommandSet.Commands.Access
 {
-    public class SetElementParametersCommand : ExternalEventCommandBase
+    public class SetElementParametersCommand : WaitableCommandBase
     {
         private static readonly object _executionLock = new object();
         private SetElementParametersEventHandler _handler => (SetElementParametersEventHandler)Handler;

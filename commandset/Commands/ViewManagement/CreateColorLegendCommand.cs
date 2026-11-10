@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace RevitMCPCommandSet.Commands.ViewManagement
 {
-    public class CreateColorLegendCommand : ExternalEventCommandBase
+    public class CreateColorLegendCommand : WaitableCommandBase
     {
         private static readonly object _executionLock = new object();
         private CreateColorLegendEventHandler _handler => (CreateColorLegendEventHandler)Handler;

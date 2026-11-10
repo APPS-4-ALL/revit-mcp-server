@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace RevitMCPCommandSet.Commands.DataExtraction
 {
-    public class BulkModifyParameterValuesCommand : ExternalEventCommandBase
+    public class BulkModifyParameterValuesCommand : WaitableCommandBase
     {
         private static readonly object _executionLock = new object();
         private BulkModifyParameterValuesEventHandler _handler => (BulkModifyParameterValuesEventHandler)Handler;

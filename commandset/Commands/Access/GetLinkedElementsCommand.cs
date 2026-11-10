@@ -8,7 +8,7 @@ using RevitMCPSDK.API.Base;
 
 namespace RevitMCPCommandSet.Commands.Access
 {
-    public class GetLinkedElementsCommand : ExternalEventCommandBase
+    public class GetLinkedElementsCommand : WaitableCommandBase
     {
         private GetLinkedElementsEventHandler _handler => (GetLinkedElementsEventHandler)Handler;
         public override string CommandName => "get_linked_elements";

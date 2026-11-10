@@ -5,7 +5,7 @@ using RevitMCPSDK.API.Base;
 
 namespace RevitMCPCommandSet.Commands
 {
-    public class CreateFloorCommand : ExternalEventCommandBase
+    public class CreateFloorCommand : WaitableCommandBase
     {
         private static readonly object _executionLock = new object();
         private CreateFloorEventHandler _handler => (CreateFloorEventHandler)Handler;

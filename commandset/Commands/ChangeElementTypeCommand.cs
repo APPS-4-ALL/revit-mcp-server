@@ -5,7 +5,7 @@ using RevitMCPSDK.API.Base;
 
 namespace RevitMCPCommandSet.Commands
 {
-    public class ChangeElementTypeCommand : ExternalEventCommandBase
+    public class ChangeElementTypeCommand : WaitableCommandBase
     {
         private static readonly object _executionLock = new object();
         private ChangeElementTypeEventHandler _handler => (ChangeElementTypeEventHandler)Handler;

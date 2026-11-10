@@ -5,7 +5,7 @@ using RevitMCPSDK.API.Base;
 
 namespace RevitMCPCommandSet.Commands.Access
 {
-    public class GetSharedParametersCommand : ExternalEventCommandBase
+    public class GetSharedParametersCommand : WaitableCommandBase
     {
         private static readonly object _executionLock = new object();
         private GetSharedParametersEventHandler _handler => (GetSharedParametersEventHandler)Handler;

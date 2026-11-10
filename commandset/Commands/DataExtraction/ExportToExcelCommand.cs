@@ -8,7 +8,7 @@ using RevitMCPSDK.API.Base;
 
 namespace RevitMCPCommandSet.Commands.DataExtraction
 {
-    public class ExportToExcelCommand : ExternalEventCommandBase
+    public class ExportToExcelCommand : WaitableCommandBase
     {
         private ExportToExcelEventHandler _handler => (ExportToExcelEventHandler)Handler;
         public override string CommandName => "export_to_excel";

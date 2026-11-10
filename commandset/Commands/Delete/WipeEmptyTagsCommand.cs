@@ -5,7 +5,7 @@ using RevitMCPSDK.API.Base;
 
 namespace RevitMCPCommandSet.Commands.Delete
 {
-    public class WipeEmptyTagsCommand : ExternalEventCommandBase
+    public class WipeEmptyTagsCommand : WaitableCommandBase
     {
         private static readonly object _executionLock = new object();
         private WipeEmptyTagsEventHandler _handler => (WipeEmptyTagsEventHandler)Handler;

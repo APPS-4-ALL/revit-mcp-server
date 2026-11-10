@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace RevitMCPCommandSet.Commands.DataExtraction
 {
-    public class CheckFamilyHealthCommand : ExternalEventCommandBase
+    public class CheckFamilyHealthCommand : WaitableCommandBase
     {
         private static readonly object _executionLock = new object();
         private CheckFamilyHealthEventHandler _handler => (CheckFamilyHealthEventHandler)Handler;

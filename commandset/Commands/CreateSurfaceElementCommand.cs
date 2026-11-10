@@ -6,7 +6,7 @@ using RevitMCPCommandSet.Services;
 
 namespace RevitMCPCommandSet.Commands
 {
-    public class CreateSurfaceElementCommand : ExternalEventCommandBase
+    public class CreateSurfaceElementCommand : WaitableCommandBase
     {
         private CreateSurfaceElementEventHandler _handler => (CreateSurfaceElementEventHandler)Handler;
 

@@ -5,7 +5,7 @@ using RevitMCPSDK.API.Base;
 
 namespace RevitMCPCommandSet.Commands.Access
 {
-    public class FindUndimensionedElementsCommand : ExternalEventCommandBase
+    public class FindUndimensionedElementsCommand : WaitableCommandBase
     {
         private static readonly object _executionLock = new object();
         private FindUndimensionedElementsEventHandler _handler => (FindUndimensionedElementsEventHandler)Handler;

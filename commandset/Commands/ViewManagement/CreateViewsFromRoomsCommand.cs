@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace RevitMCPCommandSet.Commands.ViewManagement
 {
-    public class CreateViewsFromRoomsCommand : ExternalEventCommandBase
+    public class CreateViewsFromRoomsCommand : WaitableCommandBase
     {
         private static readonly object _executionLock = new object();
         private CreateViewsFromRoomsEventHandler _handler => (CreateViewsFromRoomsEventHandler)Handler;

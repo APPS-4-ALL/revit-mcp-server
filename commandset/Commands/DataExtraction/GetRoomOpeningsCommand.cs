@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace RevitMCPCommandSet.Commands.DataExtraction
 {
-    public class GetRoomOpeningsCommand : ExternalEventCommandBase
+    public class GetRoomOpeningsCommand : WaitableCommandBase
     {
         private static readonly object _executionLock = new object();
         private GetRoomOpeningsEventHandler _handler => (GetRoomOpeningsEventHandler)Handler;

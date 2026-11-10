@@ -5,7 +5,7 @@ using RevitMCPSDK.API.Base;
 
 namespace RevitMCPCommandSet.Commands
 {
-    public class DuplicateViewCommand : ExternalEventCommandBase
+    public class DuplicateViewCommand : WaitableCommandBase
     {
         private static readonly object _executionLock = new object();
         private DuplicateViewEventHandler _handler => (DuplicateViewEventHandler)Handler;

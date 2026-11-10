@@ -8,7 +8,7 @@ using System.Collections.Generic;
 
 namespace RevitMCPCommandSet.Commands.DataExtraction
 {
-    public class ModifyScheduleCommand : ExternalEventCommandBase
+    public class ModifyScheduleCommand : WaitableCommandBase
     {
         private static readonly object _executionLock = new object();
         private ModifyScheduleEventHandler _handler => (ModifyScheduleEventHandler)Handler;

@@ -5,7 +5,7 @@ using RevitMCPSDK.API.Base;
 
 namespace RevitMCPCommandSet.Commands.Access
 {
-    public class GetWarningsCommand : ExternalEventCommandBase
+    public class GetWarningsCommand : WaitableCommandBase
     {
         private static readonly object _executionLock = new object();
         private GetWarningsEventHandler _handler => (GetWarningsEventHandler)Handler;

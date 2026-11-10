@@ -5,7 +5,7 @@ using RevitMCPSDK.API.Base;
 
 namespace RevitMCPCommandSet.Commands.Access
 {
-    public class GetPhasesCommand : ExternalEventCommandBase
+    public class GetPhasesCommand : WaitableCommandBase
     {
         private static readonly object _executionLock = new object();
         private GetPhasesEventHandler _handler => (GetPhasesEventHandler)Handler;

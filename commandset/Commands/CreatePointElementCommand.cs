@@ -6,7 +6,7 @@ using RevitMCPCommandSet.Services;
 
 namespace RevitMCPCommandSet.Commands
 {
-    public class CreatePointElementCommand :    ExternalEventCommandBase
+    public class CreatePointElementCommand : WaitableCommandBase
     {
         private CreatePointElementEventHandler _handler => (CreatePointElementEventHandler)Handler;
 

@@ -6,7 +6,7 @@ using RevitMCPSDK.API.Base;
 
 namespace RevitMCPCommandSet.Commands
 {
-    public class CreateSheetCommand : ExternalEventCommandBase
+    public class CreateSheetCommand : WaitableCommandBase
     {
         private static readonly object _executionLock = new object();
         private CreateSheetEventHandler _handler => (CreateSheetEventHandler)Handler;

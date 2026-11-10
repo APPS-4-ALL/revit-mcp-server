@@ -6,7 +6,7 @@ using System;
 
 namespace RevitMCPCommandSet.Commands.ViewManagement
 {
-    public class CreateViewTemplateCommand : ExternalEventCommandBase
+    public class CreateViewTemplateCommand : WaitableCommandBase
     {
         private static readonly object _executionLock = new object();
         private CreateViewTemplateEventHandler _handler => (CreateViewTemplateEventHandler)Handler;

@@ -6,7 +6,7 @@ using System;
 
 namespace RevitMCPCommandSet.Commands.DataExtraction
 {
-    public class DuplicateScheduleCommand : ExternalEventCommandBase
+    public class DuplicateScheduleCommand : WaitableCommandBase
     {
         private static readonly object _executionLock = new object();
         private DuplicateScheduleEventHandler _handler => (DuplicateScheduleEventHandler)Handler;

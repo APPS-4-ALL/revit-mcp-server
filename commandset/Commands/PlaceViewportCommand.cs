@@ -6,7 +6,7 @@ using RevitMCPSDK.API.Base;
 
 namespace RevitMCPCommandSet.Commands
 {
-    public class PlaceViewportCommand : ExternalEventCommandBase
+    public class PlaceViewportCommand : WaitableCommandBase
     {
         private static readonly object _executionLock = new object();
         private PlaceViewportEventHandler _handler => (PlaceViewportEventHandler)Handler;

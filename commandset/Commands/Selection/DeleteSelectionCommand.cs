@@ -6,7 +6,7 @@ using System;
 
 namespace RevitMCPCommandSet.Commands.Selection
 {
-    public class DeleteSelectionCommand : ExternalEventCommandBase
+    public class DeleteSelectionCommand : WaitableCommandBase
     {
         private DeleteSelectionEventHandler _handler => (DeleteSelectionEventHandler)Handler;
 

@@ -5,7 +5,7 @@ using RevitMCPSDK.API.Base;
 
 namespace RevitMCPCommandSet.Commands.Access
 {
-    public class LinesPerViewCountCommand : ExternalEventCommandBase
+    public class LinesPerViewCountCommand : WaitableCommandBase
     {
         private static readonly object _executionLock = new object();
         private LinesPerViewCountEventHandler _handler => (LinesPerViewCountEventHandler)Handler;

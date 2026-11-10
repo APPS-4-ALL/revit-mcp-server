@@ -8,7 +8,7 @@ using RevitMCPSDK.API.Base;
 
 namespace RevitMCPCommandSet.Commands.ViewManagement
 {
-    public class ManageViewTemplatesCommand : ExternalEventCommandBase
+    public class ManageViewTemplatesCommand : WaitableCommandBase
     {
         private ManageViewTemplatesEventHandler _handler => (ManageViewTemplatesEventHandler)Handler;
         public override string CommandName => "manage_view_templates";

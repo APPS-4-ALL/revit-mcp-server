@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace RevitMCPCommandSet.Commands
 {
-    public class AIElementFilterCommand : ExternalEventCommandBase
+    public class AIElementFilterCommand : WaitableCommandBase
     {
         private AIElementFilterEventHandler _handler => (AIElementFilterEventHandler)Handler;
 

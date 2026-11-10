@@ -5,7 +5,7 @@ using RevitMCPSDK.API.Base;
 
 namespace RevitMCPCommandSet.Commands.Delete
 {
-    public class DeleteElementCommand : ExternalEventCommandBase
+    public class DeleteElementCommand : WaitableCommandBase
     {
         private static readonly object _executionLock = new object();
         private DeleteElementEventHandler _handler => (DeleteElementEventHandler)Handler;

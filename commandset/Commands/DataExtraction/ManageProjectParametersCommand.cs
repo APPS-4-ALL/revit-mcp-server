@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace RevitMCPCommandSet.Commands.DataExtraction
 {
-    public class ManageProjectParametersCommand : ExternalEventCommandBase
+    public class ManageProjectParametersCommand : WaitableCommandBase
     {
         private ManageProjectParametersEventHandler _handler => (ManageProjectParametersEventHandler)Handler;
 

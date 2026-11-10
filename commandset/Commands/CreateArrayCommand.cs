@@ -5,7 +5,7 @@ using RevitMCPSDK.API.Base;
 
 namespace RevitMCPCommandSet.Commands
 {
-    public class CreateArrayCommand : ExternalEventCommandBase
+    public class CreateArrayCommand : WaitableCommandBase
     {
         private static readonly object _executionLock = new object();
         private CreateArrayEventHandler _handler => (CreateArrayEventHandler)Handler;

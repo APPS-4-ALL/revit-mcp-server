@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace RevitMCPCommandSet.Commands.DataExtraction
 {
-    public class SetMaterialPropertiesCommand : ExternalEventCommandBase
+    public class SetMaterialPropertiesCommand : WaitableCommandBase
     {
         private static readonly object _executionLock = new object();
         private SetMaterialPropertiesEventHandler _handler => (SetMaterialPropertiesEventHandler)Handler;

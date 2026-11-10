@@ -5,7 +5,7 @@ using RevitMCPSDK.API.Base;
 
 namespace RevitMCPCommandSet.Commands.Access
 {
-    public class GetMaterialsCommand : ExternalEventCommandBase
+    public class GetMaterialsCommand : WaitableCommandBase
     {
         private static readonly object _executionLock = new object();
         private GetMaterialsEventHandler _handler => (GetMaterialsEventHandler)Handler;

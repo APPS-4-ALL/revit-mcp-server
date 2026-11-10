@@ -5,7 +5,7 @@ using RevitMCPSDK.API.Base;
 
 namespace RevitMCPCommandSet.Commands.Access
 {
-    public class GetWorksetsCommand : ExternalEventCommandBase
+    public class GetWorksetsCommand : WaitableCommandBase
     {
         private static readonly object _executionLock = new object();
         private GetWorksetsEventHandler _handler => (GetWorksetsEventHandler)Handler;

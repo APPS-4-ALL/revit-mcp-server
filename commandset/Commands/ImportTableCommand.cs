@@ -5,7 +5,7 @@ using RevitMCPSDK.API.Base;
 
 namespace RevitMCPCommandSet.Commands
 {
-    public class ImportTableCommand : ExternalEventCommandBase
+    public class ImportTableCommand : WaitableCommandBase
     {
         private static readonly object _executionLock = new object();
         private ImportTableEventHandler _handler => (ImportTableEventHandler)Handler;

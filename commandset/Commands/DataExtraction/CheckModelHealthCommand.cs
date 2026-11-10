@@ -5,7 +5,7 @@ using RevitMCPSDK.API.Base;
 
 namespace RevitMCPCommandSet.Commands.DataExtraction
 {
-    public class CheckModelHealthCommand : ExternalEventCommandBase
+    public class CheckModelHealthCommand : WaitableCommandBase
     {
         private CheckModelHealthEventHandler _handler => (CheckModelHealthEventHandler)Handler;
 

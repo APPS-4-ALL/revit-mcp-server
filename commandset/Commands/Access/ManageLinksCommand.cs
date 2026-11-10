@@ -5,7 +5,7 @@ using RevitMCPSDK.API.Base;
 
 namespace RevitMCPCommandSet.Commands.Access
 {
-    public class ManageLinksCommand : ExternalEventCommandBase
+    public class ManageLinksCommand : WaitableCommandBase
     {
         private static readonly object _executionLock = new object();
         private ManageLinksEventHandler _handler => (ManageLinksEventHandler)Handler;

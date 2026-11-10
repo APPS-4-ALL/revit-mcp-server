@@ -5,7 +5,7 @@ using RevitMCPSDK.API.Base;
 
 namespace RevitMCPCommandSet.Commands
 {
-    public class LoadFamilyCommand : ExternalEventCommandBase
+    public class LoadFamilyCommand : WaitableCommandBase
     {
         private static readonly object _executionLock = new object();
         private LoadFamilyEventHandler _handler => (LoadFamilyEventHandler)Handler;

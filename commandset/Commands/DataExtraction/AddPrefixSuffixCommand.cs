@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace RevitMCPCommandSet.Commands.DataExtraction
 {
-    public class AddPrefixSuffixCommand : ExternalEventCommandBase
+    public class AddPrefixSuffixCommand : WaitableCommandBase
     {
         private static readonly object _executionLock = new object();
         private AddPrefixSuffixEventHandler _handler => (AddPrefixSuffixEventHandler)Handler;

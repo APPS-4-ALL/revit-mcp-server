@@ -5,7 +5,7 @@ using RevitMCPSDK.API.Base;
 
 namespace RevitMCPCommandSet.Commands.Access
 {
-    public class GetCurrentViewElementsCommand : ExternalEventCommandBase
+    public class GetCurrentViewElementsCommand : WaitableCommandBase
     {
         private GetCurrentViewElementsEventHandler _handler => (GetCurrentViewElementsEventHandler)Handler;
 

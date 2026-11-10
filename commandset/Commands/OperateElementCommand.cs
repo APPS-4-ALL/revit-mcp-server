@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace RevitMCPCommandSet.Commands
 {
-    public class OperateElementCommand : ExternalEventCommandBase
+    public class OperateElementCommand : WaitableCommandBase
     {
         private OperateElementEventHandler _handler => (OperateElementEventHandler)Handler;
 

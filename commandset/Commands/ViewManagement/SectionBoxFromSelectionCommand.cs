@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace RevitMCPCommandSet.Commands.ViewManagement
 {
-    public class SectionBoxFromSelectionCommand : ExternalEventCommandBase
+    public class SectionBoxFromSelectionCommand : WaitableCommandBase
     {
         private static readonly object _executionLock = new object();
         private SectionBoxFromSelectionEventHandler _handler => (SectionBoxFromSelectionEventHandler)Handler;

@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace RevitMCPCommandSet.Commands.DataExtraction
 {
-    public class ClearParameterValuesCommand : ExternalEventCommandBase
+    public class ClearParameterValuesCommand : WaitableCommandBase
     {
         private static readonly object _executionLock = new object();
         private ClearParameterValuesEventHandler _handler => (ClearParameterValuesEventHandler)Handler;

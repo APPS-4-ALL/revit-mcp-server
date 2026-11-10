@@ -5,7 +5,7 @@ using RevitMCPSDK.API.Base;
 
 namespace RevitMCPCommandSet.Commands.Access
 {
-    public class ListFamilySizesCommand : ExternalEventCommandBase
+    public class ListFamilySizesCommand : WaitableCommandBase
     {
         private static readonly object _executionLock = new object();
         private ListFamilySizesEventHandler _handler => (ListFamilySizesEventHandler)Handler;

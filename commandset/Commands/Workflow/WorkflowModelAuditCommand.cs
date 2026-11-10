@@ -6,7 +6,7 @@ using RevitMCPSDK.API.Base;
 
 namespace RevitMCPCommandSet.Commands.Workflow
 {
-    public class WorkflowModelAuditCommand : ExternalEventCommandBase
+    public class WorkflowModelAuditCommand : WaitableCommandBase
     {
         private WorkflowModelAuditEventHandler _handler => (WorkflowModelAuditEventHandler)Handler;
         public override string CommandName => "workflow_model_audit";

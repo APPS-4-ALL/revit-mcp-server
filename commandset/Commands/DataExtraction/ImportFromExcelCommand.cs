@@ -6,7 +6,7 @@ using RevitMCPSDK.API.Base;
 
 namespace RevitMCPCommandSet.Commands.DataExtraction
 {
-    public class ImportFromExcelCommand : ExternalEventCommandBase
+    public class ImportFromExcelCommand : WaitableCommandBase
     {
         private ImportFromExcelEventHandler _handler => (ImportFromExcelEventHandler)Handler;
         public override string CommandName => "import_from_excel";

@@ -5,7 +5,7 @@ using RevitMCPSDK.API.Base;
 
 namespace RevitMCPCommandSet.Commands
 {
-    public class PurgeUnusedCommand : ExternalEventCommandBase
+    public class PurgeUnusedCommand : WaitableCommandBase
     {
         private static readonly object _executionLock = new object();
         private PurgeUnusedEventHandler _handler => (PurgeUnusedEventHandler)Handler;

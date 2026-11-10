@@ -6,7 +6,7 @@ using System;
 
 namespace RevitMCPCommandSet.Commands.Selection
 {
-    public class LoadSelectionCommand : ExternalEventCommandBase
+    public class LoadSelectionCommand : WaitableCommandBase
     {
         private LoadSelectionEventHandler _handler => (LoadSelectionEventHandler)Handler;
 

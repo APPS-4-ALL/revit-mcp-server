@@ -8,7 +8,7 @@ using RevitMCPSDK.API.Base;
 
 namespace RevitMCPCommandSet.Commands.ViewManagement
 {
-    public class CreateCalloutFromRoomsCommand : ExternalEventCommandBase
+    public class CreateCalloutFromRoomsCommand : WaitableCommandBase
     {
         private CreateCalloutFromRoomsEventHandler _handler => (CreateCalloutFromRoomsEventHandler)Handler;
         public override string CommandName => "create_callout_from_rooms";
