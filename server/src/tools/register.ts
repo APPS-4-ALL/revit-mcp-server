@@ -5,6 +5,7 @@ import * as AddSharedParameter from "./add_shared_parameter.js";
 import * as AiElementFilter from "./ai_element_filter.js";
 import * as AlignViewports from "./align_viewports.js";
 import * as AnalyzeModelStatistics from "./analyze_model_statistics.js";
+import * as ApplyColorFillScheme from "./apply_color_fill_scheme.js";
 import * as ApplyViewTemplate from "./apply_view_template.js";
 import * as AuditFamilies from "./audit_families.js";
 import * as BatchCreateSheets from "./batch_create_sheets.js";
@@ -146,6 +147,7 @@ export async function registerTools(server: McpServer) {
     { name: "ai_element_filter", module: AiElementFilter },
     { name: "align_viewports", module: AlignViewports },
     { name: "analyze_model_statistics", module: AnalyzeModelStatistics },
+    { name: "apply_color_fill_scheme", module: ApplyColorFillScheme },
     { name: "apply_view_template", module: ApplyViewTemplate },
     { name: "audit_families", module: AuditFamilies },
     { name: "batch_create_sheets", module: BatchCreateSheets },

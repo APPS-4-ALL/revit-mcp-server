@@ -484,6 +484,11 @@
       "assemblyPath": "RevitMCPCommandSet/{VERSION}/RevitMCPCommandSet.dll"
     },
     {
+      "commandName": "apply_color_fill_scheme",
+      "description": "Apply a native Color Fill Scheme to rooms/areas/spaces in a plan with a deterministic palette and place a Color Fill Legend.",
+      "assemblyPath": "RevitMCPCommandSet/{VERSION}/RevitMCPCommandSet.dll"
+    },
+    {
       "commandName": "add_prefix_suffix",
       "description": "Add prefix and/or suffix to existing parameter values without overwriting",
       "assemblyPath": "RevitMCPCommandSet/{VERSION}/RevitMCPCommandSet.dll"

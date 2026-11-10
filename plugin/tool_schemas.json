@@ -327,6 +327,95 @@
     }
   },
   {
+    "name": "apply_color_fill_scheme",
+    "description": "Color rooms (or areas/spaces) in a plan with a native Revit Color Fill Scheme and place a real Color Fill Legend next to the plan. Preferred over color_elements/create_color_legend for presentation plans: no per-element overrides, and the legend updates live with the model.\n\nGUIDANCE:\n- \"Color rooms by use/function/department\" (any language): call with no parameterName. It picks the first populated of Department, Occupancy, Name.\n- Works on the active view unless viewId is given; the view must be a plan that shows the rooms.\n- Colors are deterministic: values are grouped by function (circulation, offices, learning, meeting, food, wet areas, services) with a muted palette per group. Override specific values with customColors.\n- Re-running is safe: the scheme is reused/updated and the legend in that view is replaced.\n- hideFloors (default true) hides the Floors category in the view so floor finish hatching does not show through the colors.",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "parameterName": {
+          "type": "string",
+          "description": "Text parameter to color by (e.g. 'Department', 'Name'). Omit to color by use (Department, then Occupancy, then Name)."
+        },
+        "categoryName": {
+          "type": "string",
+          "enum": [
+            "Rooms",
+            "Areas",
+            "Spaces"
+          ],
+          "description": "Default: Rooms."
+        },
+        "viewId": {
+          "type": "number",
+          "description": "Plan view to apply to. Default: the active view."
+        },
+        "schemeName": {
+          "type": "string",
+          "description": "Scheme name and legend title. Default: 'Room Use' (or 'Room <Parameter>')."
+        },
+        "placeLegend": {
+          "type": "boolean",
+          "description": "Place a Color Fill Legend in the view. Default: true."
+        },
+        "legendPosition": {
+          "type": "string",
+          "enum": [
+            "right",
+            "left",
+            "above",
+            "below"
+          ],
+          "description": "Legend position relative to the plan. Default: right."
+        },
+        "hideFloors": {
+          "type": "boolean",
+          "description": "Hide the Floors category in the view for clean flat colors. Default: true."
+        },
+        "zoomToFit": {
+          "type": "boolean",
+          "description": "Zoom the view to fit afterwards so plan and legend are both on screen (if the view is open). Default: true."
+        },
+        "customColors": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string",
+                "description": "Parameter value to match (case-insensitive)."
+              },
+              "r": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 255
+              },
+              "g": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 255
+              },
+              "b": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 255
+              }
+            },
+            "required": [
+              "value",
+              "r",
+              "g",
+              "b"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Explicit colors for specific values; all other values use the built-in palette."
+        }
+      },
+      "additionalProperties": false,
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    }
+  },
+  {
     "name": "apply_view_template",
     "description": "Apply or remove a view template on one or more views.",
     "input_schema": {
