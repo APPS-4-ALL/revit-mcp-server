@@ -112,10 +112,17 @@ namespace RevitMCPCommandSet.Services
 
                         transaction.Commit();
 
+                        // Like Revit's own "New Schedule", open the result so the user sees it
+                        bool opened = false;
+                        if (ScheduleInfo.Open != false)
+                        {
+                            try { app.ActiveUIDocument.ActiveView = schedule; opened = true; } catch { }
+                        }
+
                         Result = new AIResult<object>
                         {
                             Success = true,
-                            Message = $"Successfully created {scheduleType} schedule '{schedule.Name}'",
+                            Message = $"Successfully created {scheduleType} schedule '{schedule.Name}'" + (opened ? " and opened it" : ""),
                             Response = new
                             {
 #if REVIT2024_OR_GREATER
@@ -123,7 +130,8 @@ namespace RevitMCPCommandSet.Services
 #else
                                 scheduleId = schedule.Id.IntegerValue,
 #endif
-                                name = schedule.Name
+                                name = schedule.Name,
+                                opened
                             }
                         };
                     }

@@ -49,6 +49,12 @@ public class ScheduleCreationInfo
     public string Name { get; set; } = string.Empty;
 
     /// <summary>
+    ///     Open the schedule after creating it (default true, like Revit's New Schedule)
+    /// </summary>
+    [JsonProperty("open")]
+    public bool? Open { get; set; }
+
+    /// <summary>
     ///     Schedule type (Regular, KeySchedule, MaterialTakeoff)
     /// </summary>
     [JsonProperty("type")]

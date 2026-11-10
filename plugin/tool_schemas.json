@@ -2407,6 +2407,10 @@
           "type": "boolean",
           "description": "If true, show every instance as a separate row; if false, collapse identical rows. Default: true"
         },
+        "open": {
+          "type": "boolean",
+          "description": "Open the new schedule in Revit after creating it. Default: true"
+        },
         "showGrandTotal": {
           "type": "boolean",
           "description": "Show grand total row at bottom of schedule. Default: false"
@@ -5360,7 +5364,7 @@
   },
   {
     "name": "renumber_elements",
-    "description": "Renumber rooms, doors, windows, or parking by location, clockwise order, or name.\n\nGUIDANCE:\n- \"Number rooms per floor, clockwise\" (any language): targetCategory='Rooms', sortBy='clockwise', perLevel=true, dryRun=false. Gives 101, 102... on level 1, 201... on level 2 (level number from the level name, e.g. '02 - Floor' -> 2).\n- clockwise sweeps from 12 o'clock around the center of each level's elements.\n- Unplaced rooms are skipped. dryRun defaults to true (preview only); pass dryRun=false to apply.",
+    "description": "Renumber rooms, doors, windows, or parking by location, clockwise order, or name.\n\nGUIDANCE:\n- \"Number rooms per floor, clockwise\" (any language): targetCategory='Rooms', sortBy='clockwise', perLevel=true, dryRun=false. Gives 101, 102... on level 1, 201... on level 2 (level number from the level name, e.g. '02 - Floor' -> 2).\n- \"Number doors by the room they serve\" (any language): targetCategory='Doors', sortBy='room', dryRun=false. Mark = room number + letter (104A, 104B...), letters clockwise around the room. The served room is the non-corridor/lobby/stair side, otherwise the room the door swings into (To Room).\n- clockwise sweeps from 12 o'clock around the center of each level's elements.\n- Unplaced rooms are skipped. dryRun defaults to true (preview only); pass dryRun=false to apply.",
     "input_schema": {
       "type": "object",
       "properties": {
@@ -5406,10 +5410,11 @@
           "enum": [
             "location",
             "clockwise",
+            "room",
             "name",
             "none"
           ],
-          "description": "'location' (row by row), 'clockwise' (around each level's center, starting at north), 'name', or 'none'."
+          "description": "'location' (row by row), 'clockwise' (around each level's center, starting at north), 'room' (doors/windows: number of the room served + letter, e.g. 104A, 104B), 'name', or 'none'."
         },
         "perLevel": {
           "type": "boolean",
@@ -5634,6 +5639,28 @@
       "required": [
         "layers"
       ],
+      "additionalProperties": false,
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    }
+  },
+  {
+    "name": "set_door_swing",
+    "description": "Work out each door's swing / handing from its plan swing arc and write it to a text parameter (default 'Swing'), creating the parameter on Doors if needed. Values: Left, Right (hinge side seen from the push side), Pair, Double acting, None.\n\nGUIDANCE:\n- Use before a door schedule that needs swing / handing / opening direction (\"כיוון פתיחה\"): call this, then add the 'Swing' field in create_schedule.\n- Revit has no built-in swing parameter; this fills one deterministically from geometry. Safe to re-run.",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "parameterName": {
+          "type": "string",
+          "description": "Text parameter to write. Default: 'Swing' (created if missing)."
+        },
+        "doorIds": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "description": "Only these doors. Default: all doors."
+        }
+      },
       "additionalProperties": false,
       "$schema": "http://json-schema.org/draft-07/schema#"
     }

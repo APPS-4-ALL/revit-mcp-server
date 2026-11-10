@@ -70,6 +70,23 @@ namespace RevitMCPCommandSet.Services
                         bool success = true;
                         string message = "";
 
+                        if (newValue == null)
+                        {
+                            renumberResults.Add(new
+                            {
+#if REVIT2024_OR_GREATER
+                                id = elem.Id.Value,
+#else
+                                id = elem.Id.IntegerValue,
+#endif
+                                oldValue,
+                                newValue = oldValue,
+                                success = false,
+                                message = "No adjacent room found - left unchanged"
+                            });
+                            continue;
+                        }
+
                         if (!DryRun)
                         {
                             try
@@ -171,6 +188,9 @@ namespace RevitMCPCommandSet.Services
             var result = new List<(Element, string)>();
             bool clockwise = SortBy == "clockwise";
 
+            if (SortBy == "room")
+                return BuildRoomNumbering(elements);
+
             if (!PerLevel && !clockwise)
             {
                 int n = StartNumber;
@@ -211,6 +231,86 @@ namespace RevitMCPCommandSet.Services
                     seq += Increment;
                 }
             }
+            return result;
+        }
+
+        // Rooms that are passed through rather than served by a door
+        private static readonly string[] CirculationKeywords =
+            { "corridor", "lobby", "hall", "hallway", "vestibule", "vest", "stair", "stairs", "elevator", "lift", "circulation", "foyer", "passage" };
+
+        private static bool IsCirculation(Room room)
+        {
+            if (room == null) return false;
+            var tokens = System.Text.RegularExpressions.Regex.Split((room.Name ?? "").ToLowerInvariant(), "[^a-z0-9]+");
+            return tokens.Any(t => CirculationKeywords.Contains(t));
+        }
+
+        /// <summary>
+        /// The room a door/window serves: if exactly one side is circulation (corridor, lobby, stair...),
+        /// the other side; otherwise the To Room (the room the door swings into), else the From Room.
+        /// </summary>
+        private static Room ServedRoom(Element e)
+        {
+            if (!(e is FamilyInstance fi)) return null;
+            Room to = fi.ToRoom, from = fi.FromRoom;
+            if (to != null && from != null && IsCirculation(to) && !IsCirculation(from)) return from;
+            return to ?? from;
+        }
+
+        private static string Letters(int index)
+        {
+            // 0 -> A, 25 -> Z, 26 -> AA
+            string s = "";
+            index++;
+            while (index > 0) { index--; s = (char)('A' + index % 26) + s; index /= 26; }
+            return s;
+        }
+
+        /// <summary>
+        /// sortBy=room: each element gets {prefix}{room number}{letter}{suffix}. Letters run clockwise
+        /// (from north) around the room's location point. Elements with no adjacent room get null (unchanged).
+        /// </summary>
+        private List<(Element elem, string value)> BuildRoomNumbering(List<Element> elements)
+        {
+            var result = new List<(Element, string)>();
+            var byRoom = elements
+                .Select(e => (e, room: ServedRoom(e)))
+                .GroupBy(x => x.room?.Id.GetValue() ?? long.MinValue)
+                .ToList();
+
+            foreach (var g in byRoom
+                .Where(g => g.Key != long.MinValue)
+                .OrderBy(g => g.First().room.Level?.Elevation ?? 0)
+                .ThenBy(g => g.First().room.Number, StringComparer.OrdinalIgnoreCase))
+            {
+                var room = g.First().room;
+                var center = (room.Location as LocationPoint)?.Point;
+                if (center == null)
+                {
+                    var bb = room.get_BoundingBox(null);
+                    center = bb != null ? (bb.Min + bb.Max) / 2 : XYZ.Zero;
+                }
+
+                var ordered = g
+                    .Select(x =>
+                    {
+                        var p = GetPoint(x.e) ?? center;
+                        double dx = p.X - center.X, dy = p.Y - center.Y;
+                        double angle = Math.Atan2(dx, dy) * 180.0 / Math.PI;
+                        if (angle < 0) angle += 360.0;
+                        return (x.e, angle: Math.Round(angle, 3));
+                    })
+                    .OrderBy(x => x.angle)
+                    .ThenBy(x => x.e.Id.GetValue())
+                    .ToList();
+
+                for (int i = 0; i < ordered.Count; i++)
+                    result.Add((ordered[i].e, $"{Prefix}{room.Number}{Letters(i)}{Suffix}"));
+            }
+
+            foreach (var x in byRoom.Where(g => g.Key == long.MinValue).SelectMany(g => g).OrderBy(x => x.e.Id.GetValue()))
+                result.Add((x.e, null));
+
             return result;
         }
 

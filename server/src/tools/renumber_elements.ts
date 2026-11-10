@@ -11,6 +11,7 @@ export function registerRenumberElementsTool(server: McpServer) {
 
 GUIDANCE:
 - "Number rooms per floor, clockwise" (any language): targetCategory='Rooms', sortBy='clockwise', perLevel=true, dryRun=false. Gives 101, 102... on level 1, 201... on level 2 (level number from the level name, e.g. '02 - Floor' -> 2).
+- "Number doors by the room they serve" (any language): targetCategory='Doors', sortBy='room', dryRun=false. Mark = room number + letter (104A, 104B...), letters clockwise around the room. The served room is the non-corridor/lobby/stair side, otherwise the room the door swings into (To Room).
 - clockwise sweeps from 12 o'clock around the center of each level's elements.
 - Unplaced rooms are skipped. dryRun defaults to true (preview only); pass dryRun=false to apply.`,
     {
@@ -34,9 +35,9 @@ GUIDANCE:
       suffix: z.string().optional().describe("Suffix after the number"),
       increment: z.number().optional().describe("Increment between numbers (default: 1)"),
       sortBy: z
-        .enum(["location", "clockwise", "name", "none"])
+        .enum(["location", "clockwise", "room", "name", "none"])
         .optional()
-        .describe("'location' (row by row), 'clockwise' (around each level's center, starting at north), 'name', or 'none'."),
+        .describe("'location' (row by row), 'clockwise' (around each level's center, starting at north), 'room' (doors/windows: number of the room served + letter, e.g. 104A, 104B), 'name', or 'none'."),
       perLevel: z
         .boolean()
         .optional()

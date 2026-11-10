@@ -118,6 +118,7 @@ import * as SaveSelection from "./save_selection.js";
 import * as SayHello from "./say_hello.js";
 import * as SectionBoxFromSelection from "./section_box_from_selection.js";
 import * as SendCodeToRevit from "./send_code_to_revit.js";
+import * as SetDoorSwing from "./set_door_swing.js";
 import * as SetElementParameters from "./set_element_parameters.js";
 import * as SetViewCrop from "./set_view_crop.js";
 import * as SetMaterialAppearance from "./set_material_appearance.js";
@@ -260,6 +261,7 @@ export async function registerTools(server: McpServer) {
     { name: "say_hello", module: SayHello },
     { name: "section_box_from_selection", module: SectionBoxFromSelection },
     { name: "send_code_to_revit", module: SendCodeToRevit },
+    { name: "set_door_swing", module: SetDoorSwing },
     { name: "set_element_parameters", module: SetElementParameters },
     { name: "set_view_crop", module: SetViewCrop },
     { name: "set_material_appearance", module: SetMaterialAppearance },

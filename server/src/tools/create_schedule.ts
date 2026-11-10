@@ -132,6 +132,10 @@ export function registerCreateScheduleTool(server: McpServer) {
         .boolean()
         .optional()
         .describe("If true, show every instance as a separate row; if false, collapse identical rows. Default: true"),
+      open: z
+        .boolean()
+        .optional()
+        .describe("Open the new schedule in Revit after creating it. Default: true"),
       showGrandTotal: z
         .boolean()
         .optional()

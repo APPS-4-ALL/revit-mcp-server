@@ -134,6 +134,11 @@
       "assemblyPath": "RevitMCPCommandSet/{VERSION}/RevitMCPCommandSet.dll"
     },
     {
+      "commandName": "set_door_swing",
+      "description": "Compute door swing (Left/Right/Pair/Double acting) from the plan swing arc and write it to a 'Swing' parameter",
+      "assemblyPath": "RevitMCPCommandSet/{VERSION}/RevitMCPCommandSet.dll"
+    },
+    {
       "commandName": "calculate_rai",
       "description": "Calculate Rapporto Aeroilluminante (window-to-floor ratio) per Italian building code DM 5/7/1975",
       "assemblyPath": "RevitMCPCommandSet/{VERSION}/RevitMCPCommandSet.dll"
