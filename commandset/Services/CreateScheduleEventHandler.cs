@@ -101,11 +101,13 @@ namespace RevitMCPCommandSet.Services
                         // Add filters
                         AddFilters(schedule, addedFields);
 
-                        // Add sort/group fields
-                        AddSortFields(schedule, addedFields);
-
-                        // Add group fields
+                        // Group fields first: the first sort/group field is the outermost level, so
+                        // "group by Level, sort by Number" must add Level before Number (otherwise every
+                        // row becomes its own group)
                         AddGroupFields(schedule, addedFields);
+
+                        // Then plain sort fields (skipping any already used for grouping)
+                        AddSortFields(schedule, addedFields);
 
                         // Set display properties
                         SetDisplayProperties(schedule);
@@ -420,6 +422,9 @@ namespace RevitMCPCommandSet.Services
                 }
 
                 if (fieldId == null)
+                    continue;
+
+                if (schedule.Definition.GetSortGroupFields().Any(f => f.FieldId.IntegerValue == fieldId.IntegerValue))
                     continue;
 
                 var sortOrder = ScheduleSortOrder.Ascending;

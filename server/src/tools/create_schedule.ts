@@ -7,7 +7,7 @@ import { rawToolResponse, rawToolError } from "../utils/compactTool.js";
 export function registerCreateScheduleTool(server: McpServer) {
   server.tool(
     "create_schedule",
-    "Create native Revit schedule with all types (regular, key, material takeoff, sheet/view list, etc.), presets, fields, filters, sorting, grouping, and display options.",
+    "Create native Revit schedule with all types (regular, key, material takeoff, sheet/view list, etc.), presets, fields, filters, sorting, grouping, and display options. The new schedule opens in Revit.\n\nGUIDANCE:\n- Door swing / handing / opening direction (\"כיוון פתיחה\"): Revit has no such field; call set_door_swing first, then add the 'Swing' field.\n- Totals per group: groupFields with showFooter=true plus calculateTotals=true on the numeric field (e.g. Area); groups are the outer level, sortFields sort within them.",
     {
       categoryName: z
         .string()

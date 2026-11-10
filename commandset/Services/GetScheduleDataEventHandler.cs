@@ -133,7 +133,9 @@ namespace RevitMCPCommandSet.Services
                 var rowData = new List<string>();
                 for (int col = 0; col < totalCols; col++)
                 {
-                    string cellText = bodyData.GetCellText(row, col);
+                    // TableSectionData.GetCellText returns "" for parameter-driven text cells (e.g. room
+                    // Number/Name); ViewSchedule.GetCellText returns what the schedule actually shows
+                    string cellText = viewSchedule.GetCellText(SectionType.Body, row, col);
                     rowData.Add(cellText);
                 }
                 rows.Add(rowData);
